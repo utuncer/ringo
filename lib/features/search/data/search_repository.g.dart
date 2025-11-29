@@ -6,51 +6,22 @@ part of 'search_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$searchRepositoryHash() => r'02cc43fa618afd3700775f636349b11fc7ea9a5b';
 
+/// See also [searchRepository].
 @ProviderFor(searchRepository)
-const searchRepositoryProvider = SearchRepositoryProvider._();
+final searchRepositoryProvider = AutoDisposeProvider<SearchRepository>.internal(
+  searchRepository,
+  name: r'searchRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$searchRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-final class SearchRepositoryProvider
-    extends
-        $FunctionalProvider<
-          SearchRepository,
-          SearchRepository,
-          SearchRepository
-        >
-    with $Provider<SearchRepository> {
-  const SearchRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'searchRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$searchRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<SearchRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  SearchRepository create(Ref ref) {
-    return searchRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SearchRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<SearchRepository>(value),
-    );
-  }
-}
-
-String _$searchRepositoryHash() => r'66d236c7b4cca878cf8b608a995a7932ba97eb15';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SearchRepositoryRef = AutoDisposeProviderRef<SearchRepository>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

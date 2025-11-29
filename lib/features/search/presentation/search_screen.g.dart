@@ -6,82 +6,157 @@ part of 'search_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$searchResultsHash() => r'a7b92d38db026f93a4af8e963239e90584cc51ef';
 
-@ProviderFor(searchResults)
-const searchResultsProvider = SearchResultsFamily._();
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
 
-final class SearchResultsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<UserProfile>>,
-          List<UserProfile>,
-          FutureOr<List<UserProfile>>
-        >
-    with
-        $FutureModifier<List<UserProfile>>,
-        $FutureProvider<List<UserProfile>> {
-  const SearchResultsProvider._({
-    required SearchResultsFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'searchResultsProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$searchResultsHash();
-
-  @override
-  String toString() {
-    return r'searchResultsProvider'
-        ''
-        '($argument)';
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
   }
 
-  @$internal
-  @override
-  $FutureProviderElement<List<UserProfile>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+/// See also [searchResults].
+@ProviderFor(searchResults)
+const searchResultsProvider = SearchResultsFamily();
+
+/// See also [searchResults].
+class SearchResultsFamily extends Family<AsyncValue<List<UserProfile>>> {
+  /// See also [searchResults].
+  const SearchResultsFamily();
+
+  /// See also [searchResults].
+  SearchResultsProvider call(
+    String query,
+  ) {
+    return SearchResultsProvider(
+      query,
+    );
+  }
 
   @override
-  FutureOr<List<UserProfile>> create(Ref ref) {
-    final argument = this.argument as String;
-    return searchResults(ref, argument);
+  SearchResultsProvider getProviderOverride(
+    covariant SearchResultsProvider provider,
+  ) {
+    return call(
+      provider.query,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'searchResultsProvider';
+}
+
+/// See also [searchResults].
+class SearchResultsProvider
+    extends AutoDisposeFutureProvider<List<UserProfile>> {
+  /// See also [searchResults].
+  SearchResultsProvider(
+    String query,
+  ) : this._internal(
+          (ref) => searchResults(
+            ref as SearchResultsRef,
+            query,
+          ),
+          from: searchResultsProvider,
+          name: r'searchResultsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$searchResultsHash,
+          dependencies: SearchResultsFamily._dependencies,
+          allTransitiveDependencies:
+              SearchResultsFamily._allTransitiveDependencies,
+          query: query,
+        );
+
+  SearchResultsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.query,
+  }) : super.internal();
+
+  final String query;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<UserProfile>> Function(SearchResultsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: SearchResultsProvider._internal(
+        (ref) => create(ref as SearchResultsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        query: query,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<UserProfile>> createElement() {
+    return _SearchResultsProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is SearchResultsProvider && other.argument == argument;
+    return other is SearchResultsProvider && other.query == query;
   }
 
   @override
   int get hashCode {
-    return argument.hashCode;
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+
+    return _SystemHash.finish(hash);
   }
 }
 
-String _$searchResultsHash() => r'84f10491ffc55a54c88e11f8233427642c1dae9d';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin SearchResultsRef on AutoDisposeFutureProviderRef<List<UserProfile>> {
+  /// The parameter `query` of this provider.
+  String get query;
+}
 
-final class SearchResultsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<UserProfile>>, String> {
-  const SearchResultsFamily._()
-    : super(
-        retry: null,
-        name: r'searchResultsProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  SearchResultsProvider call(String query) =>
-      SearchResultsProvider._(argument: query, from: this);
+class _SearchResultsProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserProfile>>
+    with SearchResultsRef {
+  _SearchResultsProviderElement(super.provider);
 
   @override
-  String toString() => r'searchResultsProvider';
+  String get query => (origin as SearchResultsProvider).query;
 }
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

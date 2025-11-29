@@ -6,52 +6,23 @@ part of 'profile_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$profileRepositoryHash() => r'fe48eebf1faf816221d4b6de6f06e06a27fb50d2';
 
+/// See also [profileRepository].
 @ProviderFor(profileRepository)
-const profileRepositoryProvider = ProfileRepositoryProvider._();
+final profileRepositoryProvider =
+    AutoDisposeProvider<ProfileRepository>.internal(
+  profileRepository,
+  name: r'profileRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$profileRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-final class ProfileRepositoryProvider
-    extends
-        $FunctionalProvider<
-          ProfileRepository,
-          ProfileRepository,
-          ProfileRepository
-        >
-    with $Provider<ProfileRepository> {
-  const ProfileRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'profileRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$profileRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<ProfileRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  ProfileRepository create(Ref ref) {
-    return profileRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ProfileRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ProfileRepository>(value),
-    );
-  }
-}
-
-String _$profileRepositoryHash() => r'98c7edfeece85e2be195aa0962369cb9145a7e4e';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ProfileRepositoryRef = AutoDisposeProviderRef<ProfileRepository>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

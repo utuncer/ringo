@@ -84,9 +84,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             '#${_selectedBgColor!.value.toRadixString(16).substring(2).toUpperCase()}';
       }
 
-      await ref
-          .read(authRepositoryProvider)
-          .signUp(
+      await ref.read(authRepositoryProvider).signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text,
             username: _usernameController.text.trim(),
@@ -247,44 +245,50 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ],
         ),
         if (_avatarType == 'preset') ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
+          const Text('Cinsiyet', style: TextStyle(color: Colors.white70)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildGenderOption('male', Icons.face),
-              _buildGenderOption('female', Icons.face_3),
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('Erkek', style: TextStyle(fontSize: 14)),
+                  value: 'male',
+                  groupValue: _selectedGender,
+                  onChanged: (val) => setState(() => _selectedGender = val),
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.primary,
+                ),
+              ),
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('Kadın', style: TextStyle(fontSize: 14)),
+                  value: 'female',
+                  groupValue: _selectedGender,
+                  onChanged: (val) => setState(() => _selectedGender = val),
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.primary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          const Text('Arka Plan Rengi',
+              style: TextStyle(color: Colors.white70)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
             children: AppColors.avatarBackgrounds.map((color) {
               return GestureDetector(
                 onTap: () => setState(() => _selectedBgColor = color),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: _selectedBgColor == color
-                        ? Border.all(color: Colors.white, width: 3)
-                        : null,
-                  ),
+                child: CircleAvatar(
+                  backgroundColor: color,
+                  radius: 20,
+                  child: _selectedBgColor == color
+                      ? const Icon(Icons.check, color: Colors.white)
+                      : null,
                 ),
               );
             }).toList(),
-          ),
-        ] else ...[
-          // Custom upload placeholder
-          Container(
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDark,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey),
-            ),
-            child: const Center(child: Text('Görsel Yükleme Alanı (Yakında)')),
           ),
         ],
       ],
@@ -317,23 +321,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Rol Seçimi', style: TextStyle(color: Colors.white70)),
+        const Text('Rol', style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: _selectedRole,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.surfaceDark,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+          ),
           dropdownColor: AppColors.surfaceDark,
           items: _roles.map((role) {
             return DropdownMenuItem(
               value: role,
-              child: Text(role.toUpperCase()),
+              child: Text(
+                role == 'competitor'
+                    ? 'Yarışmacı'
+                    : role == 'instructor'
+                        ? 'Eğitmen'
+                        : 'Takım',
+                style: const TextStyle(color: Colors.white),
+              ),
             );
           }).toList(),
-          onChanged: (val) => setState(() => _selectedRole = val!),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.surfaceDark,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          ),
+          onChanged: (value) => setState(() => _selectedRole = value!),
         ),
       ],
     );
@@ -343,10 +357,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'İlgi Alanları (Min 1)',
-          style: TextStyle(color: Colors.white70),
-        ),
+        const Text('İlgi Alanları', style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -366,12 +377,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 });
               },
               backgroundColor: AppColors.surfaceDark,
-              selectedColor: AppColors.roleInterests,
+              selectedColor: AppColors.primary,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.white : Colors.white70,
               ),
-              checkmarkColor: Colors.black,
             );
           }).toList(),
         ),

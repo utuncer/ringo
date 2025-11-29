@@ -6,53 +6,25 @@ part of 'notification_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(notificationRepository)
-const notificationRepositoryProvider = NotificationRepositoryProvider._();
-
-final class NotificationRepositoryProvider
-    extends
-        $FunctionalProvider<
-          NotificationRepository,
-          NotificationRepository,
-          NotificationRepository
-        >
-    with $Provider<NotificationRepository> {
-  const NotificationRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'notificationRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$notificationRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<NotificationRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  NotificationRepository create(Ref ref) {
-    return notificationRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(NotificationRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<NotificationRepository>(value),
-    );
-  }
-}
-
 String _$notificationRepositoryHash() =>
-    r'4f8ea7b39a732e5ecd362e25d1d72334a3e00ec9';
+    r'382d7fc1830266faacdb87fdcf174ee28941afe9';
+
+/// See also [notificationRepository].
+@ProviderFor(notificationRepository)
+final notificationRepositoryProvider =
+    AutoDisposeProvider<NotificationRepository>.internal(
+  notificationRepository,
+  name: r'notificationRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$notificationRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationRepositoryRef
+    = AutoDisposeProviderRef<NotificationRepository>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

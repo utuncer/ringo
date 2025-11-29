@@ -6,80 +6,154 @@ part of 'post_detail_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$commentsHash() => r'1b108421ecee25d8b34ba8bbceed6bde75eff745';
 
-@ProviderFor(comments)
-const commentsProvider = CommentsFamily._();
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
 
-final class CommentsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<Comment>>,
-          List<Comment>,
-          FutureOr<List<Comment>>
-        >
-    with $FutureModifier<List<Comment>>, $FutureProvider<List<Comment>> {
-  const CommentsProvider._({
-    required CommentsFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'commentsProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$commentsHash();
-
-  @override
-  String toString() {
-    return r'commentsProvider'
-        ''
-        '($argument)';
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
   }
 
-  @$internal
-  @override
-  $FutureProviderElement<List<Comment>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+/// See also [comments].
+@ProviderFor(comments)
+const commentsProvider = CommentsFamily();
+
+/// See also [comments].
+class CommentsFamily extends Family<AsyncValue<List<Comment>>> {
+  /// See also [comments].
+  const CommentsFamily();
+
+  /// See also [comments].
+  CommentsProvider call(
+    String postId,
+  ) {
+    return CommentsProvider(
+      postId,
+    );
+  }
 
   @override
-  FutureOr<List<Comment>> create(Ref ref) {
-    final argument = this.argument as String;
-    return comments(ref, argument);
+  CommentsProvider getProviderOverride(
+    covariant CommentsProvider provider,
+  ) {
+    return call(
+      provider.postId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'commentsProvider';
+}
+
+/// See also [comments].
+class CommentsProvider extends AutoDisposeFutureProvider<List<Comment>> {
+  /// See also [comments].
+  CommentsProvider(
+    String postId,
+  ) : this._internal(
+          (ref) => comments(
+            ref as CommentsRef,
+            postId,
+          ),
+          from: commentsProvider,
+          name: r'commentsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$commentsHash,
+          dependencies: CommentsFamily._dependencies,
+          allTransitiveDependencies: CommentsFamily._allTransitiveDependencies,
+          postId: postId,
+        );
+
+  CommentsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.postId,
+  }) : super.internal();
+
+  final String postId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<Comment>> Function(CommentsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CommentsProvider._internal(
+        (ref) => create(ref as CommentsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        postId: postId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<Comment>> createElement() {
+    return _CommentsProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CommentsProvider && other.argument == argument;
+    return other is CommentsProvider && other.postId == postId;
   }
 
   @override
   int get hashCode {
-    return argument.hashCode;
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, postId.hashCode);
+
+    return _SystemHash.finish(hash);
   }
 }
 
-String _$commentsHash() => r'57cee8377e0eabf871cda3dbae0b3a04c6373190';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CommentsRef on AutoDisposeFutureProviderRef<List<Comment>> {
+  /// The parameter `postId` of this provider.
+  String get postId;
+}
 
-final class CommentsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<Comment>>, String> {
-  const CommentsFamily._()
-    : super(
-        retry: null,
-        name: r'commentsProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  CommentsProvider call(String postId) =>
-      CommentsProvider._(argument: postId, from: this);
+class _CommentsProviderElement
+    extends AutoDisposeFutureProviderElement<List<Comment>> with CommentsRef {
+  _CommentsProviderElement(super.provider);
 
   @override
-  String toString() => r'commentsProvider';
+  String get postId => (origin as CommentsProvider).postId;
 }
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

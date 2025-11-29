@@ -6,43 +6,21 @@ part of 'home_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$postsHash() => r'11245026c109105ccf96abc94b32493fe44e628d';
 
+/// See also [posts].
 @ProviderFor(posts)
-const postsProvider = PostsProvider._();
+final postsProvider = AutoDisposeFutureProvider<List<Post>>.internal(
+  posts,
+  name: r'postsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$postsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-final class PostsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<Post>>,
-          List<Post>,
-          FutureOr<List<Post>>
-        >
-    with $FutureModifier<List<Post>>, $FutureProvider<List<Post>> {
-  const PostsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'postsProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$postsHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<Post>> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<Post>> create(Ref ref) {
-    return posts(ref);
-  }
-}
-
-String _$postsHash() => r'9ca795da3f7a3940819a69a1170bf30f58859214';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PostsRef = AutoDisposeFutureProviderRef<List<Post>>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

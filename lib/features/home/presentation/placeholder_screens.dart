@@ -16,17 +16,7 @@ class SavedPostsScreen extends StatelessWidget {
   }
 }
 
-class ChatListScreen extends StatelessWidget {
-  const ChatListScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sohbetler')),
-      body: const Center(child: Text('Sohbet listesi burada gösterilecek')),
-    );
-  }
-}
 
 class EditInterestsScreen extends StatelessWidget {
   const EditInterestsScreen({super.key});
@@ -34,15 +24,9 @@ class EditInterestsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('İlgi Alanları Düzenle'),
-        backgroundColor: AppColors.surfaceDark,
-      ),
+      appBar: AppBar(title: const Text('İlgi Alanlarını Düzenle')),
       body: const Center(
-        child: Text(
-          'İlgi alanları düzenleme ekranı yakında...',
-          style: TextStyle(color: Colors.white),
-        ),
+        child: Text('İlgi Alanları Düzenleme Ekranı - Yakında'),
       ),
     );
   }
@@ -54,15 +38,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ayarlar'),
-        backgroundColor: AppColors.surfaceDark,
-      ),
+      appBar: AppBar(title: const Text('Ayarlar')),
       body: const Center(
-        child: Text(
-          'Ayarlar ekranı yakında...',
-          style: TextStyle(color: Colors.white),
-        ),
+        child: Text('Ayarlar Ekranı - Yakında'),
       ),
     );
   }

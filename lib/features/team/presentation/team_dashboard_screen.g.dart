@@ -6,38 +6,21 @@ part of 'team_dashboard_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$myTeamIdHash() => r'c97c9069847871f1bce7237a2cd9ac41271a3417';
 
+/// See also [myTeamId].
 @ProviderFor(myTeamId)
-const myTeamIdProvider = MyTeamIdProvider._();
+final myTeamIdProvider = AutoDisposeFutureProvider<String?>.internal(
+  myTeamId,
+  name: r'myTeamIdProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$myTeamIdHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-final class MyTeamIdProvider
-    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
-    with $FutureModifier<String?>, $FutureProvider<String?> {
-  const MyTeamIdProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'myTeamIdProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$myTeamIdHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<String?> create(Ref ref) {
-    return myTeamId(ref);
-  }
-}
-
-String _$myTeamIdHash() => r'0587f74ef9fb36025a79df9fc5c861dd25b9375a';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MyTeamIdRef = AutoDisposeFutureProviderRef<String?>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

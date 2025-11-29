@@ -6,46 +6,22 @@ part of 'chat_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
+String _$chatRepositoryHash() => r'a2357be5498d7fc7172e1a4433153a600f1f0d8d';
 
+/// See also [chatRepository].
 @ProviderFor(chatRepository)
-const chatRepositoryProvider = ChatRepositoryProvider._();
+final chatRepositoryProvider = AutoDisposeProvider<ChatRepository>.internal(
+  chatRepository,
+  name: r'chatRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$chatRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-final class ChatRepositoryProvider
-    extends $FunctionalProvider<ChatRepository, ChatRepository, ChatRepository>
-    with $Provider<ChatRepository> {
-  const ChatRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'chatRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$chatRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<ChatRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  ChatRepository create(Ref ref) {
-    return chatRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ChatRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ChatRepository>(value),
-    );
-  }
-}
-
-String _$chatRepositoryHash() => r'ba3ff0ecff9a4f0216fc738f08067992230f6c48';
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ChatRepositoryRef = AutoDisposeProviderRef<ChatRepository>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

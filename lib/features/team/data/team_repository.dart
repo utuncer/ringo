@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // EKLENDİ
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../profile/domain/user_profile.dart';
 
 part 'team_repository.g.dart';
 
@@ -8,6 +9,13 @@ part 'team_repository.g.dart';
 TeamRepository teamRepository(Ref ref) {
   // TeamRepositoryRef -> Ref
   return TeamRepository(Supabase.instance.client);
+}
+
+
+
+@riverpod
+Future<List<UserProfile>> teamMembers(Ref ref, String teamId) {
+  return ref.read(teamRepositoryProvider).getMembers(teamId);
 }
 
 class TeamRepository {
@@ -34,6 +42,17 @@ class TeamRepository {
         .maybeSingle();
 
     return membership?['team_id'];
+  }
+
+  Future<List<UserProfile>> getMembers(String teamId) async {
+    final response = await _client
+        .from('team_members')
+        .select('users(*)')
+        .eq('team_id', teamId);
+
+    return (response as List)
+        .map((e) => UserProfile.fromJson(e['users']))
+        .toList();
   }
 
   Future<void> leaveTeam(String teamId) async {
