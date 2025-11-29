@@ -1,0 +1,187 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../constants/app_colors.dart';
+import '../../features/auth/data/auth_repository.dart';
+
+class ScaffoldWithNavbar extends ConsumerWidget {
+  final Widget child;
+
+  const ScaffoldWithNavbar({required this.child, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Mevcut kullanıcı bilgisini Supabase'ten al
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: CircleAvatar(
+              // Avatar varsa göster, yoksa varsayılan ikonu kullan
+              backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
+                  ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
+                  : null,
+              backgroundColor: Colors.grey,
+              child: currentUser?.userMetadata?['avatar_url'] == null
+                  ? const Icon(Icons.person, color: Colors.white)
+                  : null,
+            ),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: GestureDetector(
+          onTap: () {
+            // Kendi profilime gitmek için kullanıcı ID'sini kullan
+            if (currentUser != null) {
+              context.push('/profile/${currentUser.id}');
+            }
+          },
+          child: const Text('Ringo'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () => context.push('/notifications'),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(color: AppColors.surfaceDark),
+              accountName: Text(
+                currentUser?.userMetadata?['full_name'] ?? 'Kullanıcı Adı',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              accountEmail: Text('@${currentUser?.userMetadata?['username'] ?? 'username'}'),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
+                    ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
+                    : null,
+                backgroundColor: AppColors.primary,
+                child: currentUser?.userMetadata?['avatar_url'] == null
+                    ? Text(
+                        (currentUser?.email?.substring(0, 1).toUpperCase() ?? 'U'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person, color: Colors.white),
+              title: const Text('Profilim', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                context.pop(); // Drawer'ı kapat
+                // Kendi profilime git
+                if (currentUser != null) {
+                  context.push('/profile/${currentUser.id}');
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.category, color: Colors.white),
+              title: const Text('İlgi Alanları Düzenle', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                context.pop(); // Drawer'ı kapat
+                // Bu route'u app_router.dart'a eklemeniz gerekecek
+                context.push('/edit-interests');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.group, color: Colors.white),
+              title: const Text('Takımım', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                context.pop();
+                context.push('/team-dashboard');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.white),
+              title: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                context.pop(); // Drawer'ı kapat
+                // Bu route'u app_router.dart'a eklemeniz gerekecek
+                context.push('/settings');
+              },
+            ),
+            const Divider(color: Colors.grey),
+            ListTile(
+              leading: const Icon(Icons.logout, color: AppColors.actionError),
+              title: const Text('Çıkış Yap', style: TextStyle(color: AppColors.actionError)),
+              onTap: () {
+                ref.read(authRepositoryProvider).signOut();
+              },
+            ),
+          ],
+        ),
+      ),
+      // Body'yi Stack içine alıp FAB'ı burada konumlandırıyoruz
+      body: Stack(
+        children: [
+          child, // Ana içerik
+          // Sağ alt köşeye sabitlenen FAB
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton(
+              onPressed: () {
+                context.push('/create-post');
+              },
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+      // BottomNavigationBar'dan placeholder'ı kaldırıyoruz
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _calculateSelectedIndex(context),
+        onTap: (int idx) => _onItemTapped(idx, context),
+        backgroundColor: AppColors.surfaceDark,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Saved'),
+        ],
+      ),
+    );
+  }
+
+  static int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.toString();
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/search')) return 1;
+    if (location.startsWith('/chat')) return 2; // Index güncellendi
+    if (location.startsWith('/saved')) return 3; // Index güncellendi
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go('/home');
+        break;
+      case 1:
+        context.go('/search');
+        break;
+      case 2:
+        context.go('/chat');
+        break;
+      case 3:
+        context.go('/saved');
+        break;
+    }
+  }
+}
