@@ -45,7 +45,8 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
 
-      // --- Independent Routes (No Bottom Bar, No Drawer) ---
+      // --- BAĞIMSIZ ROTALAR (ShellRoute DIŞINDA) ---
+      // Bu rotalar ScaffoldWithNavbar'ı kullanmaz, kendi Scaffold'ları olur.
       GoRoute(
         path: '/create-post',
         builder: (context, state) => const CreatePostScreen(),
@@ -100,7 +101,8 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) => const SettingsScreen(),
       ),
 
-      // --- Shell Route (With Bottom Bar & Drawer) ---
+      // --- SHELL ROUTE (Bottom Bar ve Drawer İÇİN) ---
+      // Sadece bu 4 rota ScaffoldWithNavbar'ı kullanır.
       ShellRoute(
         builder: (context, state, child) {
           return ScaffoldWithNavbar(child: child);
@@ -126,9 +128,7 @@ GoRouter goRouter(Ref ref) {
       ),
     ],
     redirect: (context, state) {
-      final authState = ref.read(
-        authStateChangesProvider,
-      );
+      final authState = ref.read(authStateChangesProvider);
 
       if (authState.isLoading || authState.hasError) return null;
 

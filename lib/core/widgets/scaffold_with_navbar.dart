@@ -1,3 +1,5 @@
+// lib/core/widgets/scaffold_with_navbar.dart
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // currentUser'ı authStateChangesProvider'dan alarak daha reaktif hale getiriyoruz.
     final authState = ref.watch(authStateChangesProvider);
     final currentUser = authState.value;
 
@@ -19,12 +22,18 @@ class ScaffoldWithNavbar extends ConsumerWidget {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
+            // --- DEĞİŞİKLİK 1: Profil Fotoğrafını Göster ---
             icon: CircleAvatar(
-              backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
-                  ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
-                  : null,
-              backgroundColor: Colors.grey,
-              child: currentUser?.userMetadata?['avatar_url'] == null
+              // Eğer kullanıcı metadata'sında avatar_url varsa onu göster,
+              // yoksa varsayılan bir ikon göster.
+              backgroundImage:
+                  (currentUser?.userMetadata?['avatar_url'] != null &&
+                          currentUser!.userMetadata!['avatar_url']!.isNotEmpty)
+                      ? NetworkImage(currentUser.userMetadata!['avatar_url']!)
+                      : null,
+              backgroundColor: Colors.grey[600], // Varsayılan arka plan rengi
+              child: (currentUser?.userMetadata?['avatar_url'] == null ||
+                      currentUser!.userMetadata!['avatar_url']!.isEmpty)
                   ? const Icon(Icons.person, color: Colors.white)
                   : null,
             ),
@@ -33,6 +42,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         ),
         title: GestureDetector(
           onTap: () {
+            // Kullanıcı giriş yapmışsa kendi profil sayfasına yönlendir
             if (currentUser != null) {
               context.push('/profile/${currentUser.id}');
             }
@@ -59,12 +69,15 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               accountEmail: Text(
                   '@${currentUser?.userMetadata?['username'] ?? 'username'}'),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: currentUser?.userMetadata?['avatar_url'] !=
-                        null
-                    ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
+                // Burada da aynı mantığı uygulayabiliriz
+                backgroundImage: (currentUser?.userMetadata?['avatar_url'] !=
+                            null &&
+                        currentUser!.userMetadata!['avatar_url']!.isNotEmpty)
+                    ? NetworkImage(currentUser.userMetadata!['avatar_url']!)
                     : null,
                 backgroundColor: AppColors.primary,
-                child: currentUser?.userMetadata?['avatar_url'] == null
+                child: (currentUser?.userMetadata?['avatar_url'] == null ||
+                        currentUser!.userMetadata!['avatar_url']!.isEmpty)
                     ? Text(
                         (currentUser?.email?.substring(0, 1).toUpperCase() ??
                             'U'),
@@ -128,6 +141,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         ),
       ),
       body: child,
+      // --- DEĞİŞİKLİK 2: FAB Kontrolünü Basitleştir ---
       floatingActionButton: _shouldShowFab(context)
           ? FloatingActionButton(
               onPressed: () {
@@ -154,9 +168,9 @@ class ScaffoldWithNavbar extends ConsumerWidget {
     );
   }
 
+  // --- DEĞİŞİKLİK 3: Sadece /home'da FAB göster ---
   bool _shouldShowFab(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
-    // Only show FAB on exactly /home
     return location == '/home';
   }
 
