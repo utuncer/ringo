@@ -29,8 +29,7 @@ class NotificationRepository {
   Future<void> markAsRead(String notificationId) async {
     await _client
         .from('notifications')
-        .update({'is_read': true})
-        .eq('id', notificationId);
+        .update({'is_read': true}).eq('id', notificationId);
   }
 
   Future<void> acceptInvitation(String notificationId, String teamId) async {
