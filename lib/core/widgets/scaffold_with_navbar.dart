@@ -120,10 +120,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
       body: Stack(
         children: [
           child,
-          if (GoRouterState.of(context).uri.toString() == '/home' ||
-              (currentUser != null &&
-                  GoRouterState.of(context).uri.toString() ==
-                      '/profile/${currentUser.id}'))
+          if (GoRouterState.of(context).uri.path == '/home')
             Positioned(
               right: 16,
               bottom: 16,
