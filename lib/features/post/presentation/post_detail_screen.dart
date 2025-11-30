@@ -33,9 +33,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Future<void> _sendComment() async {
     final content = _commentController.text.trim();
     if (content.isEmpty) return;
-    if (content.length < 50) {
+
+    if (content.length > 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yorum en az 50 karakter olmalı.')),
+        const SnackBar(
+          content: Text('Yorum 200 karakteri geçemez.'),
+          backgroundColor: AppColors.actionError,
+        ),
       );
       return;
     }
@@ -74,7 +78,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 children: [
                   PostCard(
                     post: widget.post,
-                  ), // Reuse PostCard but maybe disable tap
+                    onTap: () {}, // Disable navigation
+                  ),
                   const Divider(color: Colors.grey),
                   commentsAsync.when(
                     data: (comments) {
@@ -177,38 +182,72 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       color: AppColors.surfaceDark,
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: TextField(
-              controller: _commentController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Yorum yaz... (min 50 karakter)',
-                hintStyle: const TextStyle(color: Colors.grey),
-                filled: true,
-                fillColor: Colors.black26,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _commentController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Yorum yaz...',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.black26,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _commentController,
+                builder: (context, value, child) {
+                  final length = value.text.length;
+                  final isOverflow = length > 200;
+                  final isDisabled = isOverflow || length == 0;
+
+                  return IconButton(
+                    icon: _isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            Icons.send,
+                            color: isDisabled ? Colors.grey : AppColors.primary,
+                          ),
+                    onPressed: (_isSending || isDisabled) ? null : _sendComment,
+                  );
+                },
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: _isSending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send, color: AppColors.primary),
-            onPressed: _isSending ? null : _sendComment,
+          const SizedBox(height: 4),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _commentController,
+            builder: (context, value, child) {
+              final length = value.text.length;
+              final isOverflow = length > 200;
+              return Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '$length/200',
+                  style: TextStyle(
+                    color: isOverflow ? const Color(0xFFDA291C) : Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

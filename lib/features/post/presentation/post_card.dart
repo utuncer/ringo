@@ -9,6 +9,7 @@ class PostCard extends ConsumerWidget {
   final Post post;
   final VoidCallback? onDelete;
   final VoidCallback? onSave;
+  final VoidCallback? onTap;
   final bool showActions;
 
   const PostCard({
@@ -16,6 +17,7 @@ class PostCard extends ConsumerWidget {
     required this.post,
     this.onDelete,
     this.onSave,
+    this.onTap,
     this.showActions = true,
   });
 
@@ -26,7 +28,7 @@ class PostCard extends ConsumerWidget {
       color: AppColors.surfaceDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () => context.push('/post-detail', extra: post),
+        onTap: onTap ?? () => context.push('/post-detail', extra: post),
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

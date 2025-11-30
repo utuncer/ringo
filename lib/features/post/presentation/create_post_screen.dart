@@ -45,32 +45,40 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     final content = _contentController.text.trim();
     final hasImage = _selectedImage != null;
 
-    // Veritabanı kuralını kontrol et: Resim yoksa içerik en az 50 karakter olmalı.
-    if (!hasImage && content.length < 50) {
+    // Soft limit kontrolü: 200 karakterden fazlaysa gönderme
+    if (content.length > 200) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: AppColors.actionError,
-            content: Text('Görsel yoksa en az 50 karakter yazmalısınız.'),
+            content: Text('Gönderi 200 karakteri geçemez.'),
           ),
         );
       }
-      return; // İşlemi durdur
+      return;
+    }
+
+    // Boş içerik kontrolü (Resim yoksa ve yazı boşsa)
+    if (!hasImage && content.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.actionError,
+            content: Text('Lütfen bir şeyler yazın veya görsel ekleyin.'),
+          ),
+        );
+      }
+      return;
     }
 
     setState(() => _isLoading = true);
 
     try {
       // 2. Repository üzerinden gönderiyi oluştur
-      // content boşsa null gönder, doluysa içeriği gönder.
-      // Bu, veritabanına boş string gitmesini engeller.
-      await ref
-          .read(postRepositoryProvider)
-          .createPost(
+      await ref.read(postRepositoryProvider).createPost(
             content: content.isEmpty ? null : content,
             imageFile: _selectedImage,
-            tags:
-                _selectedTags, // Etiketleri ID'lere çevirme mantığı repository'de olmalı
+            tags: _selectedTags,
           );
 
       if (mounted) {
@@ -101,6 +109,46 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       appBar: AppBar(
         title: const Text('Gönderi Oluştur'),
         backgroundColor: AppColors.surfaceDark,
+        actions: [
+          // Progress Bar Widget
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _contentController,
+            builder: (context, value, child) {
+              final length = value.text.length;
+              final isOverflow = length > 200;
+              final progress = length / 200;
+
+              if (length == 0) return const SizedBox.shrink();
+
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: isOverflow
+                        ? Center(
+                            child: Text(
+                              '-${length - 200}',
+                              style: const TextStyle(
+                                color: Color(0xFFDA291C),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        : CircularProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.grey[800],
+                            color: AppColors.primary,
+                            strokeWidth: 3,
+                          ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -110,7 +158,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             TextField(
               controller: _contentController,
               maxLines: 5,
-              maxLength: 200,
+              // maxLength removed for soft limit
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 hintText: 'Neler düşünüyorsun?',
@@ -193,10 +241,23 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             ),
 
             const SizedBox(height: 32),
-            CustomButton(
-              text: 'Paylaş',
-              onPressed: _createPost,
-              isLoading: _isLoading,
+            
+            // Share Button with dynamic state
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _contentController,
+              builder: (context, value, child) {
+                final length = value.text.length;
+                final isOverflow = length > 200;
+                // Disable if overflow or (empty text AND no image)
+                final isDisabled = isOverflow || (length == 0 && _selectedImage == null);
+
+                return CustomButton(
+                  text: 'Paylaş',
+                  onPressed: isDisabled ? null : _createPost,
+                  isLoading: _isLoading,
+                  // You might need to update CustomButton to support disabled state visually if it doesn't already
+                );
+              },
             ),
           ],
         ),

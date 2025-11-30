@@ -60,12 +60,44 @@ class PostRepository {
       }
     }
 
+    await _ensureUserExists();
+
     await _client.from('posts').insert({
       'user_id': userId,
       'content': content,
       'image_url': imageUrl,
       'image_aspect_ratio': aspectRatio,
     });
+  }
+
+  Future<void> _ensureUserExists() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      // Check if user exists in public.users
+      final data =
+          await _client.from('users').select('id').eq('id', user.id).maybeSingle();
+
+      if (data == null) {
+        // User missing, insert them
+        await _client.from('users').insert({
+          'id': user.id,
+          'email': user.email!,
+          'full_name': user.userMetadata?['full_name'] ?? '',
+          'username': user.userMetadata?['username'] ??
+              'user_${user.id.substring(0, 8)}',
+          'role': user.userMetadata?['role'] ?? 'competitor',
+          'avatar_url': user.userMetadata?['avatar_url'],
+          'avatar_type': user.userMetadata?['avatar_type'] ?? 'preset',
+          'avatar_gender': user.userMetadata?['avatar_gender'],
+          'avatar_bg_color': user.userMetadata?['avatar_bg_color'],
+        });
+      }
+    } catch (e) {
+      // Log error but don't block, let the FK constraint fail if it must
+      print('Error ensuring user exists: $e');
+    }
   }
 
   Future<List<Comment>> getComments(String postId) async {

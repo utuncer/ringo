@@ -101,32 +101,67 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             color: AppColors.surfaceDark,
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Mesaj yaz...',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.black26,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Mesaj yaz...',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          filled: true,
+                          fillColor: Colors.black26,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _messageController,
+                      builder: (context, value, child) {
+                        final length = value.text.length;
+                        final isOverflow = length > 200;
+                        final isDisabled = isOverflow || length == 0;
+
+                        return IconButton(
+                          icon: Icon(
+                            Icons.send,
+                            color: isDisabled ? Colors.grey : AppColors.primary,
+                          ),
+                          onPressed: isDisabled ? null : _sendMessage,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: AppColors.primary),
-                  onPressed: _sendMessage,
+                const SizedBox(height: 4),
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _messageController,
+                  builder: (context, value, child) {
+                    final length = value.text.length;
+                    final isOverflow = length > 200;
+                    return Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '$length/200',
+                        style: TextStyle(
+                          color:
+                              isOverflow ? const Color(0xFFDA291C) : Colors.grey,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
