@@ -33,8 +33,6 @@ GoRouter goRouter(Ref ref) {
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
-    // Codec'i ekle
-    // extraCodec: const PostCodec(),
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
@@ -46,7 +44,7 @@ GoRouter goRouter(Ref ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      
+
       // --- Independent Routes (No Bottom Bar, No Drawer) ---
       GoRoute(
         path: '/create-post',
@@ -130,39 +128,27 @@ GoRouter goRouter(Ref ref) {
     redirect: (context, state) {
       final authState = ref.read(
         authStateChangesProvider,
-      ); // watch yerine read kullanabiliriz veya mevcut kalsın
+      );
 
-      // 1. Yüklenme Durumu:
-      // Eğer Supabase henüz yanıt vermediyse veya veri yükleniyorsa,
-      // kullanıcının Splash ekranında kalmasına izin ver (null döndür).
       if (authState.isLoading || authState.hasError) return null;
 
-      final isLoggedIn =
-          authState.value != null; // asData?.value yerine direkt value
+      final isLoggedIn = authState.value != null;
 
       final isSplash = state.uri.toString() == '/';
       final isLoggingIn = state.uri.toString() == '/login';
       final isRegistering = state.uri.toString() == '/register';
       final isOnboarding = state.uri.toString() == '/onboarding';
 
-      // 2. Splash Ekranı Kontrolü (Kritik Düzeltme):
-      // Eğer kullanıcı Splash ekranındaysa, durumu kontrol et ve yönlendir.
       if (isSplash) {
-        return isLoggedIn ? '/home' : '/onboarding'; // Veya direkt '/login'
+        return isLoggedIn ? '/home' : '/onboarding';
       }
 
-      // 3. Giriş Yapmamış Kullanıcı Kontrolü:
-      // Kullanıcı giriş yapmamışsa ve auth sayfalarında (login, register, onboarding) değilse,
-      // Login sayfasına at.
       if (!isLoggedIn) {
         if (!isLoggingIn && !isRegistering && !isOnboarding) {
           return '/login';
         }
       }
 
-      // 4. Giriş Yapmış Kullanıcı Kontrolü:
-      // Kullanıcı giriş yapmışsa ama hala login/register/onboarding sayfalarına girmeye çalışıyorsa,
-      // Ana sayfaya (/home) yönlendir.
       if (isLoggedIn) {
         if (isLoggingIn || isRegistering || isOnboarding) {
           return '/home';

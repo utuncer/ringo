@@ -55,15 +55,18 @@ class ScaffoldWithNavbar extends ConsumerWidget {
                 currentUser?.userMetadata?['full_name'] ?? 'Kullanıcı Adı',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              accountEmail: Text('@${currentUser?.userMetadata?['username'] ?? 'username'}'),
+              accountEmail: Text(
+                  '@${currentUser?.userMetadata?['username'] ?? 'username'}'),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
+                backgroundImage: currentUser?.userMetadata?['avatar_url'] !=
+                        null
                     ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
                     : null,
                 backgroundColor: AppColors.primary,
                 child: currentUser?.userMetadata?['avatar_url'] == null
                     ? Text(
-                        (currentUser?.email?.substring(0, 1).toUpperCase() ?? 'U'),
+                        (currentUser?.email?.substring(0, 1).toUpperCase() ??
+                            'U'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -74,7 +77,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text('Profilim', style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Profilim', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop(); // Close drawer
                 if (currentUser != null) {
@@ -84,7 +88,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.category, color: Colors.white),
-              title: const Text('İlgi Alanları Düzenle', style: TextStyle(color: Colors.white)),
+              title: const Text('İlgi Alanları Düzenle',
+                  style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop(); // Close drawer
                 context.push('/edit-interests');
@@ -92,7 +97,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.group, color: Colors.white),
-              title: const Text('Takımım', style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Takımım', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop(); // Close drawer
                 context.push('/team-dashboard');
@@ -100,7 +106,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.settings, color: Colors.white),
-              title: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Ayarlar', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop(); // Close drawer
                 context.push('/settings');
@@ -109,7 +116,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             const Divider(color: Colors.grey),
             ListTile(
               leading: const Icon(Icons.logout, color: AppColors.actionError),
-              title: const Text('Çıkış Yap', style: TextStyle(color: AppColors.actionError)),
+              title: const Text('Çıkış Yap',
+                  style: TextStyle(color: AppColors.actionError)),
               onTap: () {
                 Navigator.of(context).pop(); // Close drawer
                 ref.read(authRepositoryProvider).signOut();
