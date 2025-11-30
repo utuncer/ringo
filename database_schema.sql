@@ -160,6 +160,7 @@ ALTER TABLE blocked_users ENABLE ROW LEVEL SECURITY;
 -- Public read access for most things
 CREATE POLICY "Public profiles are viewable by everyone" ON users FOR SELECT USING (true);
 CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON users FOR INSERT WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Interests are viewable by everyone" ON interests FOR SELECT USING (true);
 
