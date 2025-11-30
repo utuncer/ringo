@@ -46,6 +46,8 @@ GoRouter goRouter(Ref ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
+      
+      // --- Independent Routes (No Bottom Bar, No Drawer) ---
       GoRoute(
         path: '/create-post',
         builder: (context, state) => const CreatePostScreen(),
@@ -91,17 +93,16 @@ GoRouter goRouter(Ref ref) {
         path: '/notifications',
         builder: (context, state) => const NotificationListScreen(),
       ),
-      // Yeni eklenen route'lar
       GoRoute(
         path: '/edit-interests',
-        builder: (context, state) =>
-            const EditInterestsScreen(), // Bu ekranı oluşturmanız gerekecek
+        builder: (context, state) => const EditInterestsScreen(),
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) =>
-            const SettingsScreen(), // Bu ekranı oluşturmanız gerekecek
+        builder: (context, state) => const SettingsScreen(),
       ),
+
+      // --- Shell Route (With Bottom Bar & Drawer) ---
       ShellRoute(
         builder: (context, state, child) {
           return ScaffoldWithNavbar(child: child);
