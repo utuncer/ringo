@@ -76,7 +76,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.person, color: Colors.white),
               title: const Text('Profilim', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop();
+                Navigator.of(context).pop(); // Close drawer
                 if (currentUser != null) {
                   context.push('/profile/${currentUser.id}');
                 }
@@ -86,7 +86,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.category, color: Colors.white),
               title: const Text('İlgi Alanları Düzenle', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop();
+                Navigator.of(context).pop(); // Close drawer
                 context.push('/edit-interests');
               },
             ),
@@ -94,7 +94,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.group, color: Colors.white),
               title: const Text('Takımım', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop();
+                Navigator.of(context).pop(); // Close drawer
                 context.push('/team-dashboard');
               },
             ),
@@ -102,7 +102,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.settings, color: Colors.white),
               title: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop();
+                Navigator.of(context).pop(); // Close drawer
                 context.push('/settings');
               },
             ),
@@ -111,6 +111,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.logout, color: AppColors.actionError),
               title: const Text('Çıkış Yap', style: TextStyle(color: AppColors.actionError)),
               onTap: () {
+                Navigator.of(context).pop(); // Close drawer
                 ref.read(authRepositoryProvider).signOut();
               },
             ),
@@ -146,6 +147,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
 
   bool _shouldShowFab(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
+    // Only show FAB on exactly /home
     return location == '/home';
   }
 
