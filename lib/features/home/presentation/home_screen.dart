@@ -7,7 +7,7 @@ import '../../post/data/post_repository.dart';
 import '../../post/domain/post.dart';
 import '../../post/presentation/post_card.dart';
 
-part 'home_screen.g.dart';
+
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -112,8 +112,4 @@ class _FeedList extends ConsumerWidget {
   }
 }
 
-// Simple provider for now
-@riverpod
-Future<List<Post>> posts(Ref ref) async {
-  return ref.read(postRepositoryProvider).getPosts();
-}
+

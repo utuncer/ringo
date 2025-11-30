@@ -127,18 +127,19 @@ class ScaffoldWithNavbar extends ConsumerWidget {
       body: Stack(
         children: [
           child, // Ana içerik
-          // Sağ alt köşeye sabitlenen FAB
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton(
-              onPressed: () {
-                context.push('/create-post');
-              },
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add, color: Colors.white),
+          // Sağ alt köşeye sabitlenen FAB - Sadece Home ekranında göster
+          if (GoRouterState.of(context).uri.toString() == '/home')
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton(
+                onPressed: () {
+                  context.push('/create-post');
+                },
+                backgroundColor: AppColors.primary,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
             ),
-          ),
         ],
       ),
       // BottomNavigationBar'dan placeholder'ı kaldırıyoruz

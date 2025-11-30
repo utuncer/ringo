@@ -5,15 +5,15 @@ class Post {
   final String? imageUrl;
   final double? imageAspectRatio;
   final DateTime createdAt;
-  final PostUser? user; // Değişti
+  final PostUser? user;
   final int voteCount;
   final int commentCount;
   final bool isSaved;
   final int userVote;
-  final List<String>? tags; // Eklendi
-  final int? likes; // Eklendi
-  final int? comments; // Eklendi
-  final bool isOwnPost; // Eklendi
+  final List<String>? tags;
+  final int? likes;
+  final int? comments;
+  final bool isOwnPost;
 
   Post({
     required this.id,
@@ -34,6 +34,26 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    // Handle tags from relation: post_tags -> interests -> name
+    List<String>? tags;
+    if (json['post_tags'] != null) {
+      tags = (json['post_tags'] as List)
+          .map((e) => e['interests']?['name'] as String?)
+          .where((e) => e != null)
+          .cast<String>()
+          .toList();
+    } else if (json['tags'] != null) {
+      tags = List<String>.from(json['tags']);
+    }
+
+    // Handle user_vote if available (passed manually or from join)
+    int userVote = 0;
+    if (json['user_vote'] != null) {
+        userVote = json['user_vote'] as int;
+    } else if (json['my_vote'] != null && (json['my_vote'] as List).isNotEmpty) {
+      userVote = json['my_vote'][0]['value'] ?? 0;
+    }
+
     return Post(
       id: json['id'],
       userId: json['user_id'],
@@ -42,11 +62,13 @@ class Post {
       imageAspectRatio: json['image_aspect_ratio']?.toDouble(),
       createdAt: DateTime.parse(json['created_at']),
       user: json['users'] != null ? PostUser.fromJson(json['users']) : null,
-      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
+      tags: tags,
       likes: json['likes'] ?? 0,
+      voteCount: json['vote_count'] ?? 0,
       comments: json['comments'] ?? 0,
       isSaved: json['is_saved'] ?? false,
       isOwnPost: json['is_own_post'] ?? false,
+      userVote: userVote,
     );
   }
 
@@ -65,7 +87,6 @@ class Post {
   }
 }
 
-// Yeni sınıf ekleyin
 class PostUser {
   final String username;
   final String fullName;

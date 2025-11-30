@@ -79,6 +79,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   PostCard(
                     post: widget.post,
                     onTap: () {}, // Disable navigation
+                    isDetail: true,
                   ),
                   const Divider(color: Colors.grey),
                   commentsAsync.when(

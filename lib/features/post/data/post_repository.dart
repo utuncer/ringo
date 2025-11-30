@@ -18,24 +18,87 @@ class PostRepository {
   PostRepository(this._client);
 
   Future<List<Post>> getPosts() async {
+    final userId = _client.auth.currentUser?.id;
+
     final response = await _client
         .from('posts')
-        // 'users' yerine 'users!posts_user_id_fkey' kullanarak doğru ilişkiyi belirtiyoruz
-        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role)')
+        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
         .order('created_at', ascending: false);
 
-    return (response as List).map((e) => Post.fromJson(e)).toList();
+    final posts = (response as List).map((e) => Post.fromJson(e)).toList();
+
+    return _attachUserVotes(posts, userId);
   }
 
-  // Belirli bir kullanıcının gönderilerini getiren yeni metot
   Future<List<Post>> getUserPosts(String userId) async {
+    final currentUserId = _client.auth.currentUser?.id;
+
     final response = await _client
         .from('posts')
-        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role)')
+        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 
-    return (response as List).map((e) => Post.fromJson(e)).toList();
+    final posts = (response as List).map((e) => Post.fromJson(e)).toList();
+
+    return _attachUserVotes(posts, currentUserId);
+  }
+
+  Future<List<Post>> _attachUserVotes(List<Post> posts, String? userId) async {
+    if (userId == null || posts.isEmpty) return posts;
+
+    final postIds = posts.map((e) => e.id).toList();
+    
+    // Fetch user votes for these posts
+    final votesResponse = await _client
+        .from('votes')
+        .select('post_id, value')
+        .eq('user_id', userId)
+        .in_('post_id', postIds);
+    
+    final votesMap = {
+        for (var v in (votesResponse as List)) v['post_id'] as String: v['value'] as int
+    };
+
+    // Recreate posts with userVote
+    return posts.map((p) {
+        final vote = votesMap[p.id];
+        if (vote != null) {
+             return Post(
+                id: p.id,
+                userId: p.userId,
+                content: p.content,
+                imageUrl: p.imageUrl,
+                imageAspectRatio: p.imageAspectRatio,
+                createdAt: p.createdAt,
+                user: p.user,
+                voteCount: p.voteCount,
+                commentCount: p.commentCount,
+                isSaved: p.isSaved,
+                userVote: vote,
+                tags: p.tags,
+                likes: p.likes,
+                comments: p.comments,
+                isOwnPost: p.isOwnPost,
+            );
+        }
+        return p;
+    }).toList();
+  }
+
+  Future<void> votePost(String postId, int value) async {
+    final userId = _client.auth.currentUser!.id;
+    if (value == 0) {
+        // Remove vote
+        await _client.from('votes').delete().match({'user_id': userId, 'post_id': postId});
+    } else {
+        // Upsert vote
+        await _client.from('votes').upsert({
+            'user_id': userId,
+            'post_id': postId,
+            'value': value,
+        });
+    }
   }
 
   Future<void> createPost({
@@ -54,20 +117,45 @@ class PostRepository {
         imageUrl = _client.storage.from('post_images').getPublicUrl(fileName);
         aspectRatio = 16 / 9;
       } catch (e) {
-        // HATA: Resim yüklenemediğinde işlemi durdur ve hatayı yukarı fırlat.
-        // Bu sayede UI katmanı hatayı yakalayıp kullanıcıya gösterebilir.
         throw Exception('Resim yüklenemedi: ${e.toString()}');
       }
     }
 
     await _ensureUserExists();
 
-    await _client.from('posts').insert({
+    final postResponse = await _client.from('posts').insert({
       'user_id': userId,
       'content': content,
       'image_url': imageUrl,
       'image_aspect_ratio': aspectRatio,
-    });
+    }).select().single();
+    
+    final postId = postResponse['id'];
+
+    // Insert tags
+    if (tags.isNotEmpty) {
+        // First get interest IDs
+        final interestsResponse = await _client
+            .from('interests')
+            .select('id, name')
+            .in_('name', tags);
+        
+        final interestMap = {
+            for (var i in (interestsResponse as List)) i['name'] as String: i['id'] as int
+        };
+
+        final postTags = tags.map((tag) {
+            final interestId = interestMap[tag];
+            if (interestId != null) {
+                return {'post_id': postId, 'interest_id': interestId};
+            }
+            return null;
+        }).where((e) => e != null).toList();
+
+        if (postTags.isNotEmpty) {
+            await _client.from('post_tags').insert(postTags);
+        }
+    }
   }
 
   Future<void> _ensureUserExists() async {
@@ -75,12 +163,10 @@ class PostRepository {
     if (user == null) return;
 
     try {
-      // Check if user exists in public.users
       final data =
           await _client.from('users').select('id').eq('id', user.id).maybeSingle();
 
       if (data == null) {
-        // User missing, insert them
         await _client.from('users').insert({
           'id': user.id,
           'email': user.email!,
@@ -95,7 +181,6 @@ class PostRepository {
         });
       }
     } catch (e) {
-      // Log error but don't block, let the FK constraint fail if it must
       print('Error ensuring user exists: $e');
     }
   }
@@ -129,4 +214,9 @@ class PostRepository {
   Future<void> deleteComment(String commentId) async {
     await _client.from('comments').delete().eq('id', commentId);
   }
+}
+
+@riverpod
+Future<List<Post>> posts(Ref ref) async {
+  return ref.read(postRepositoryProvider).getPosts();
 }
