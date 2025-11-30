@@ -11,9 +11,10 @@ AuthRepository authRepository(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Stream<supabase.User?> authStateChanges(Ref ref) {
-  // AuthStateChangesRef -> Ref
-  return ref.watch(authRepositoryProvider).authStateChanges();
+Stream<supabase.User?> authStateChanges(Ref ref) async* {
+  final repository = ref.watch(authRepositoryProvider);
+  yield repository.currentUser;
+  yield* repository.authStateChanges();
 }
 
 class AuthRepository {
