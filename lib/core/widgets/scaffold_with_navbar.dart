@@ -12,7 +12,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final authState = ref.watch(authStateChangesProvider);
+    final currentUser = authState.value;
 
     return Scaffold(
       appBar: AppBar(
