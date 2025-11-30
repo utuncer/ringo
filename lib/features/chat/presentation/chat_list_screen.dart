@@ -71,13 +71,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Hata: $err')),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/search');
-        },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.message, color: Colors.white),
-      ),
+
     );
   }
 }

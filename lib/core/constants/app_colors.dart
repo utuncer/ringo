@@ -7,6 +7,7 @@ class AppColors {
   static const Color surfaceDark = Color(0xFF333F48);
   static const Color background = Color(0xFF121212); // Standard dark background
   static const Color surface = Color(0xFF1E1E1E); // Slightly lighter surface
+  static const Color surfaceLight = Color(0xFF455A64); // Lighter surface for tags
 
   // Role Badges
   static const Color roleTeam = Color(0xFFDA291C);

@@ -12,7 +12,6 @@ class ScaffoldWithNavbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Mevcut kullanıcı bilgisini Supabase'ten al
     final currentUser = Supabase.instance.client.auth.currentUser;
 
     return Scaffold(
@@ -20,7 +19,6 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         leading: Builder(
           builder: (context) => IconButton(
             icon: CircleAvatar(
-              // Avatar varsa göster, yoksa varsayılan ikonu kullan
               backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
                   ? NetworkImage(currentUser!.userMetadata!['avatar_url']!)
                   : null,
@@ -34,7 +32,6 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         ),
         title: GestureDetector(
           onTap: () {
-            // Kendi profilime gitmek için kullanıcı ID'sini kullan
             if (currentUser != null) {
               context.push('/profile/${currentUser.id}');
             }
@@ -79,8 +76,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.person, color: Colors.white),
               title: const Text('Profilim', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop(); // Drawer'ı kapat
-                // Kendi profilime git
+                context.pop();
                 if (currentUser != null) {
                   context.push('/profile/${currentUser.id}');
                 }
@@ -90,8 +86,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.category, color: Colors.white),
               title: const Text('İlgi Alanları Düzenle', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop(); // Drawer'ı kapat
-                // Bu route'u app_router.dart'a eklemeniz gerekecek
+                context.pop();
                 context.push('/edit-interests');
               },
             ),
@@ -107,8 +102,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               leading: const Icon(Icons.settings, color: Colors.white),
               title: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
               onTap: () {
-                context.pop(); // Drawer'ı kapat
-                // Bu route'u app_router.dart'a eklemeniz gerekecek
+                context.pop();
                 context.push('/settings');
               },
             ),
@@ -123,12 +117,13 @@ class ScaffoldWithNavbar extends ConsumerWidget {
           ],
         ),
       ),
-      // Body'yi Stack içine alıp FAB'ı burada konumlandırıyoruz
       body: Stack(
         children: [
-          child, // Ana içerik
-          // Sağ alt köşeye sabitlenen FAB - Sadece Home ekranında göster
-          if (GoRouterState.of(context).uri.toString() == '/home')
+          child,
+          if (GoRouterState.of(context).uri.toString() == '/home' ||
+              (currentUser != null &&
+                  GoRouterState.of(context).uri.toString() ==
+                      '/profile/${currentUser.id}'))
             Positioned(
               right: 16,
               bottom: 16,
@@ -142,7 +137,6 @@ class ScaffoldWithNavbar extends ConsumerWidget {
             ),
         ],
       ),
-      // BottomNavigationBar'dan placeholder'ı kaldırıyoruz
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int idx) => _onItemTapped(idx, context),
@@ -164,8 +158,8 @@ class ScaffoldWithNavbar extends ConsumerWidget {
     final String location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/search')) return 1;
-    if (location.startsWith('/chat')) return 2; // Index güncellendi
-    if (location.startsWith('/saved')) return 3; // Index güncellendi
+    if (location.startsWith('/chat')) return 2;
+    if (location.startsWith('/saved')) return 3;
     return 0;
   }
 

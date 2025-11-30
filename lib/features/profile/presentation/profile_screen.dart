@@ -146,64 +146,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              color: AppColors.surfaceDark,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        '${_userPosts.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text(
-                        'Gönderi',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  const Column(
-                    children: [
-                      Text(
-                        '0',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Takipçi',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  const Column(
-                    children: [
-                      Text(
-                        '0',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Takip',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _buildInterestTags(),
             const SizedBox(height: 16),
             if (_userPosts.isEmpty)
               const Center(
@@ -253,5 +196,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       default:
         return 'Kullanıcı';
     }
+  }
+
+  Widget _buildInterestTags() {
+    final interestsData = _userProfile!['user_interests'] as List<dynamic>?;
+
+    if (interestsData == null || interestsData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final interests = interestsData.map((item) {
+      final interest = item['interests'] as Map<String, dynamic>;
+      return interest['name'] as String;
+    }).toList();
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: interests.map((interest) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceLight,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.primary.withOpacity(0.5)),
+          ),
+          child: Text(
+            interest,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }
