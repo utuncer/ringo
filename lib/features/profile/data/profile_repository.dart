@@ -36,11 +36,11 @@ class ProfileRepository {
   }
 
   Future<int> getPostCount(String userId) async {
-    final count = await _client
+    final response = await _client
         .from('posts')
-        .count(CountOption.exact)
+        .select('*', const FetchOptions(count: CountOption.exact))
         .eq('user_id', userId);
-    return count;
+    return response.count ?? 0;
   }
 
   // Team specific methods

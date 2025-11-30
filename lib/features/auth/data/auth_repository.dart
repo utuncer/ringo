@@ -1,31 +1,31 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // EKLENDİ
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 part 'auth_repository.g.dart';
 
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
   // AuthRepositoryRef -> Ref
-  return AuthRepository(Supabase.instance.client.auth);
+  return AuthRepository(supabase.Supabase.instance.client.auth);
 }
 
 @Riverpod(keepAlive: true)
-Stream<User?> authStateChanges(Ref ref) {
+Stream<supabase.User?> authStateChanges(Ref ref) {
   // AuthStateChangesRef -> Ref
   return ref.watch(authRepositoryProvider).authStateChanges();
 }
 
 class AuthRepository {
-  final GoTrueClient _auth;
+  final supabase.GoTrueClient _auth;
 
   AuthRepository(this._auth);
 
-  Stream<User?> authStateChanges() {
+  Stream<supabase.User?> authStateChanges() {
     return _auth.onAuthStateChange.map((event) => event.session?.user);
   }
 
-  User? get currentUser => _auth.currentUser;
+  supabase.User? get currentUser => _auth.currentUser;
 
   Future<void> signIn({required String email, required String password}) async {
     await _auth.signInWithPassword(email: email, password: password);

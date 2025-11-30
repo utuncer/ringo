@@ -26,20 +26,6 @@ import '../../features/home/presentation/placeholder_screens.dart';
 
 part 'app_router.g.dart';
 
-// Post nesnesi için codec
-class PostCodec extends Codec<Post> {
-  const PostCodec();
-
-  @override
-  Post decode(Object data) {
-    if (data is Post) return data;
-    return Post.fromJson(data as Map<String, dynamic>);
-  }
-
-  @override
-  Object encode(Post data) => data.toJson();
-}
-
 @riverpod
 GoRouter goRouter(Ref ref) {
   final authState = ref.watch(authStateChangesProvider);

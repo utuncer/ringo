@@ -72,7 +72,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           context,
         ).showSnackBar(const SnackBar(content: Text('Profil güncellendi')));
         context.pop();
-        ref.invalidate(userProfileProvider(widget.profile.id));
+        // Invalidate the profile to refresh it
+        ref.invalidate(profileRepositoryProvider);
       }
     } catch (e) {
       if (mounted) {
