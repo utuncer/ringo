@@ -117,23 +117,16 @@ class ScaffoldWithNavbar extends ConsumerWidget {
           ],
         ),
       ),
-      body: Stack(
-        children: [
-          child,
-          if (GoRouterState.of(context).uri.path == '/home')
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: FloatingActionButton(
-                onPressed: () {
-                  context.push('/create-post');
-                },
-                backgroundColor: AppColors.primary,
-                child: const Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-        ],
-      ),
+      body: child,
+      floatingActionButton: _shouldShowFab(context)
+          ? FloatingActionButton(
+              onPressed: () {
+                context.push('/create-post');
+              },
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int idx) => _onItemTapped(idx, context),
@@ -149,6 +142,11 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  bool _shouldShowFab(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    return location == '/home';
   }
 
   static int _calculateSelectedIndex(BuildContext context) {
