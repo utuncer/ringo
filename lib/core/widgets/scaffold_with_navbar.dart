@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_colors.dart';
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/home/presentation/home_screen.dart';
 
 class ScaffoldWithNavbar extends ConsumerWidget {
   final Widget child;
@@ -42,12 +43,18 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         ),
         title: GestureDetector(
           onTap: () {
-            // Kullanıcı giriş yapmışsa kendi profil sayfasına yönlendir
-            if (currentUser != null) {
-              context.push('/profile/${currentUser.id}');
+            final location = GoRouterState.of(context).uri.path;
+            if (location == '/home') {
+              ref.read(homeScrollTriggerProvider.notifier).state++;
+            } else {
+              context.go('/home');
             }
           },
-          child: const Text('Ringo'),
+          child: Image.asset(
+            'assets/images/ringo_logo_tp.png',
+            height: 30, // Adjust height as needed
+            fit: BoxFit.contain,
+          ),
         ),
         actions: [
           IconButton(

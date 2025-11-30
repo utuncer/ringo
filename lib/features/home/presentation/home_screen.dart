@@ -9,6 +9,8 @@ import '../../post/presentation/post_card.dart';
 
 
 
+final homeScrollTriggerProvider = StateProvider<int>((ref) => 0);
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -46,13 +48,37 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _FeedList extends ConsumerWidget {
+class _FeedList extends ConsumerStatefulWidget {
   final String type;
 
   const _FeedList({required this.type});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_FeedList> createState() => _FeedListState();
+}
+
+class _FeedListState extends ConsumerState<_FeedList> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen to scroll trigger
+    ref.listen(homeScrollTriggerProvider, (previous, next) {
+      if (next != previous && _scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+
     // TODO: Use specific providers based on type
     // For now, just fetching all posts for all tabs to demonstrate UI
     final postsAsync = ref.watch(postsProvider);
@@ -67,7 +93,7 @@ class _FeedList extends ConsumerWidget {
                 const Icon(Icons.search_off, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
-                  _getEmptyMessage(type),
+                  _getEmptyMessage(widget.type),
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],
@@ -81,6 +107,7 @@ class _FeedList extends ConsumerWidget {
             ref.invalidate(postsProvider);
           },
           child: ListView.builder(
+            controller: _scrollController,
             itemCount: posts.length,
             itemBuilder: (context, index) {
               return PostCard(
