@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
+// ShellRoute içinde kullanılacak - Scaffold YOK
 class SavedPostsScreen extends StatelessWidget {
   const SavedPostsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kaydedilenler')),
-      body: const Center(
-        child: Text('Kaydedilen gönderiler burada gösterilecek'),
+    return const Center(
+      child: Text(
+        'Kaydedilen gönderiler burada gösterilecek',
+        style: TextStyle(color: Colors.white),
       ),
     );
   }
 }
 
-
-
+// Bağımsız route - Kendi Scaffold'u var
 class EditInterestsScreen extends StatelessWidget {
   const EditInterestsScreen({super.key});
 
@@ -32,6 +32,7 @@ class EditInterestsScreen extends StatelessWidget {
   }
 }
 
+// Bağımsız route - Kendi Scaffold'u var
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
