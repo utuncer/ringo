@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   cached_network_image: ^3.0.0
+  flutter_native_splash: ^2.4.0
   cupertino_icons: ^1.0.2
   flutter_riverpod: ^2.4.0
   go_router: ^12.1.1
@@ -32,10 +33,30 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: "ringologo_bg"
   ios: true
   image_path: "assets/images/ringo_logo_bg.png"
   min_sdk_android: 21
+
+flutter_native_splash:
+  # Ekranın genel arka planı
+  color: "#1a1b29"
+
+  # ÖNEMLİ: Buraya ŞEFFAF (transparent) olan görseli koymalısın.
+  # Eğer kenarlardan yine kesilirse, PNG dosyasını düzenleyip logoyu küçült (etrafına boşluk ver).
+  image: assets/images/ringo_logo_bg.png
+
+  android_12:
+    # Android 12 için de şeffaf görsel
+    image: assets/images/ringo_logo_bg.png
+
+    # Bu ayar çok kritik:
+    # İkonun (o yuvarlak maskenin) içini SİYAH boyar.
+    # Böylece şeffaf logonun arkası siyah olur ve dış ekranla bütünleşir.
+    icon_background_color: "#1a1b29"
+
+    # Bu da ekranın geri kalanı
+    color: "#1a1b29"
 
 flutter:
   uses-material-design: true
