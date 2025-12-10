@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,7 +103,7 @@ class PostRepository {
 
   Future<void> createPost({
     String? content,
-    XFile? imageFile,
+    File? imageFile,
     required List<String> tags,
   }) async {
     final userId = _client.auth.currentUser!.id;
@@ -115,12 +113,7 @@ class PostRepository {
     if (imageFile != null) {
       final fileName = '${DateTime.now().toIso8601String()}_$userId.jpg';
       try {
-        final bytes = await imageFile.readAsBytes();
-        await _client.storage.from('post_images').uploadBinary(
-              fileName,
-              bytes,
-              fileOptions: const FileOptions(contentType: 'image/jpeg'),
-            );
+        await _client.storage.from('post_images').upload(fileName, imageFile);
         imageUrl = _client.storage.from('post_images').getPublicUrl(fileName);
         aspectRatio = 16 / 9;
       } catch (e) {
