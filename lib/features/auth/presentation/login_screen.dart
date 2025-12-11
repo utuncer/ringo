@@ -33,12 +33,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await ref
-          .read(authRepositoryProvider)
-          .signIn(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+      final input = _emailController.text.trim();
+      final isEmail = input.contains('@');
+
+      if (isEmail) {
+        await ref.read(authRepositoryProvider).signIn(
+              email: input,
+              password: _passwordController.text,
+            );
+      } else {
+        await ref.read(authRepositoryProvider).signInWithUsername(
+              username: input,
+              password: _passwordController.text,
+            );
+      }
       // Navigation will be handled by the router listening to auth state
     } catch (e) {
       if (mounted) {
@@ -86,15 +94,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 48),
                 CustomTextField(
                   controller: _emailController,
-                  label: 'Email',
-                  hint: 'ornek@email.com',
+                  label: 'Email veya Kullanıcı Adı',
+                  hint: 'Email veya Kullanıcı Adı',
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email gerekli';
+                      return 'Email veya Kullanıcı Adı gerekli';
                     }
-                    if (!value.contains('@')) {
-                      return 'Geçerli bir email giriniz';
+                    if (value.length < 3) {
+                      return 'En az 3 karakter giriniz';
                     }
                     return null;
                   },

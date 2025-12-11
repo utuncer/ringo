@@ -7,7 +7,7 @@ part 'auth_repository.g.dart';
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
   // AuthRepositoryRef -> Ref
-  return AuthRepository(supabase.Supabase.instance.client.auth);
+  return AuthRepository(supabase.Supabase.instance.client);
 }
 
 @Riverpod(keepAlive: true)
@@ -18,18 +18,42 @@ Stream<supabase.User?> authStateChanges(Ref ref) async* {
 }
 
 class AuthRepository {
-  final supabase.GoTrueClient _auth;
+  final supabase.SupabaseClient _client;
 
-  AuthRepository(this._auth);
+  AuthRepository(this._client);
 
   Stream<supabase.User?> authStateChanges() {
-    return _auth.onAuthStateChange.map((event) => event.session?.user);
+    return _client.auth.onAuthStateChange.map((event) => event.session?.user);
   }
 
-  supabase.User? get currentUser => _auth.currentUser;
+  supabase.User? get currentUser => _client.auth.currentUser;
 
   Future<void> signIn({required String email, required String password}) async {
-    await _auth.signInWithPassword(email: email, password: password);
+    await _client.auth.signInWithPassword(email: email, password: password);
+  }
+
+  Future<void> signInWithUsername({
+    required String username,
+    required String password,
+  }) async {
+    // 1. Username'den Email'i bul
+    final response = await _client
+        .from('users')
+        .select('email') // Users tablosunda email kolonu olduğunu varsayıyoruz
+        .eq('username', username)
+        .maybeSingle();
+
+    if (response == null) {
+      throw 'Kullanıcı bulunamadı';
+    }
+
+    final email = response['email'] as String?;
+    if (email == null) {
+      throw 'Bu kullanıcı adına bağlı email bulunamadı';
+    }
+
+    // 2. Email ile giriş yap
+    await _client.auth.signInWithPassword(email: email, password: password);
   }
 
   Future<void> signUp({
@@ -47,7 +71,7 @@ class AuthRepository {
     // İlgili alanları virgülle ayrılmış bir dizeye dönüştür
     final interestsString = interestIds.join(',');
 
-    await _auth.signUp(
+    await _client.auth.signUp(
       email: email,
       password: password,
       data: {
@@ -65,6 +89,6 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    await _client.auth.signOut();
   }
 }
