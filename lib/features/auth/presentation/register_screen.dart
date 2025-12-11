@@ -77,6 +77,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     return true;
   }
+  
+  List<String> get _missingFields {
+    List<String> errors = [];
+    if (_usernameController.text.isEmpty) errors.add('* Kullanıcı adı girilmedi');
+    if (_fullNameController.text.isEmpty) errors.add('* Ad Soyad girilmedi');
+    if (_emailController.text.isEmpty || !_emailController.text.contains('@')) errors.add('* Geçerli bir email girilmedi');
+    if (_passwordController.text.length < 6) errors.add('* Şifre en az 6 karakter olmalı');
+    if (_selectedInterests.isEmpty) errors.add('* En az bir ilgi alanı seçilmeli');
+
+    if (_avatarType == 'preset') {
+      if (_selectedGender == null) errors.add('* Cinsiyet seçilmedi');
+      if (_selectedBgColor == null) errors.add('* Arka plan rengi seçilmedi');
+    } else {
+       if (_customImageFile == null) errors.add('* Resim yüklenmedi');
+    }
+    return errors;
+  }
 
   @override
   void initState() {
@@ -290,6 +307,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 onPressed: _isFormValid ? _register : null,
                 isLoading: _isLoading,
               ),
+              if (!_isFormValid) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _missingFields.map((msg) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        msg,
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    )).toList(),
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
