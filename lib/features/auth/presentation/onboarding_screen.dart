@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
 
@@ -14,23 +15,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _pages = [
+  final List<Map<String, dynamic>> _pages = [
     {
       'title': 'Ringo\'ya Hoş Geldin',
-      'description': 'Yarışma ve ekip kurma odaklı sosyal medya platformu.',
-      'icon': 'rocket_launch',
+      'description':
+          'Yarışmalar için ekip kurma ve projeleri tanıtmaya odaklı sosyal medya platformu.',
+      'type': 'lottie',
+      'path': 'assets/anim/animSplashTeamWork.json',
     },
     {
       'title': 'Takımını Kur',
-      'description':
-          'Yeteneklerine uygun takım arkadaşları bul ve yarışmalara katıl.',
-      'icon': 'groups',
+      'description': 'Yarışmalar için uygun takım arkadaşları bul.',
+      'type': 'icon',
+      'data': Icons.rocket_launch,
     },
     {
       'title': 'Hemen Başla',
       'description':
           'Profilini oluştur, ilgi alanlarını seç ve Ringo dünyasına adım at.',
-      'icon': 'verified_user',
+      'type': 'image',
+      'path': 'assets/images/ringo_logo_tp.png',
     },
   ];
 
@@ -45,7 +49,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _skip() {
-    context.go('/login');
+    _pageController.animateToPage(
+      _pages.length - 1,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _nextPage() {
@@ -94,11 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          _getIconData(page['icon']!),
-                          size: 120,
-                          color: AppColors.primary,
-                        ),
+                        _buildPageContent(page, index),
                         const SizedBox(height: 48),
                         Text(
                           page['title']!,
@@ -163,16 +167,82 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  IconData _getIconData(String name) {
-    switch (name) {
-      case 'rocket_launch':
-        return Icons.rocket_launch;
-      case 'groups':
-        return Icons.groups;
-      case 'verified_user':
-        return Icons.verified_user;
+  Widget _buildPageContent(Map<String, dynamic> page, int index) {
+    switch (page['type']) {
+      case 'lottie':
+        return _OnboardingLottie(
+          path: page['path'],
+          isVisible: _currentPage == index,
+        );
+      case 'image':
+        return Image.asset(
+          page['path'],
+          height: 75,
+          fit: BoxFit.contain,
+        );
+      case 'icon':
+        return Icon(
+          page['data'],
+          size: 120,
+          color: AppColors.primary,
+        );
       default:
-        return Icons.circle;
+        return const SizedBox(height: 120);
     }
+  }
+}
+
+class _OnboardingLottie extends StatefulWidget {
+  final String path;
+  final bool isVisible;
+
+  const _OnboardingLottie({
+    required this.path,
+    required this.isVisible,
+  });
+
+  @override
+  State<_OnboardingLottie> createState() => _OnboardingLottieState();
+}
+
+class _OnboardingLottieState extends State<_OnboardingLottie>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void didUpdateWidget(covariant _OnboardingLottie oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isVisible && !oldWidget.isVisible) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Lottie.asset(
+      widget.path,
+      controller: _controller,
+      height: 250,
+      fit: BoxFit.contain,
+      repeat: false,
+      onLoaded: (composition) {
+        _controller.duration = composition.duration;
+        if (widget.isVisible) {
+          _controller.forward(from: 0);
+        }
+      },
+    );
   }
 }
