@@ -29,6 +29,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   // Avatar Selection
   String _avatarType = 'preset'; // 'preset' or 'custom'
   String? _selectedGender = 'male'; // Default Male
+  String _selectedTeamLogo = 'team_logo_1'; // Default Team Logo
   Color? _selectedBgColor = AppColors.avatarBackgrounds[1]; // Default Blue
   XFile? _customImageFile;
 
@@ -159,15 +160,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void _updatePresetPreview() {
     // Logic handled in build via state variables
     // But we need to update the persistence if we are in preset mode
-    // Current implementation in _buildProfilePreview handles the display logic dynamically based on _previewImageProvider checks
-    // IF we want to persist "Preset vs Custom" choice, we should track it.
-    // The current code puts FileImage or AssetImage into _previewImageProvider.
-    if (_selectedGender != null) {
-      String assetName = _selectedGender == 'male'
-          ? 'assets/images/icon_m.png'
-          : 'assets/images/icon_w.png';
-      _previewImageProvider = AssetImage(assetName);
+    
+    if (_selectedRole == 'team') {
+        _previewImageProvider = AssetImage('assets/images/$_selectedTeamLogo.png');
+    } else {
+        if (_selectedGender != null) {
+        String assetName = _selectedGender == 'male'
+            ? 'assets/images/icon_m.png'
+            : 'assets/images/icon_w.png';
+        _previewImageProvider = AssetImage(assetName);
+        }
     }
+
     if (_selectedBgColor != null) {
       _previewBgColor = _selectedBgColor;
     }
@@ -248,6 +252,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             children: [
               _buildProfilePreview(),
               const SizedBox(height: 24),
+              _buildRoleSection(),
+              const SizedBox(height: 24),
               _buildAvatarSection(),
               const SizedBox(height: 24),
               CustomTextField(
@@ -267,8 +273,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _fullNameController,
-                label: 'Ad Soyad',
-                hint: 'Adınız Soyadınız',
+                label: _selectedRole == 'team' ? 'Takım Adınız' : 'Ad Soyad',
+                hint: _selectedRole == 'team' ? 'Takım İsminiz' : 'Adınız Soyadınız',
                 validator: (value) => value?.isEmpty == true ? 'Gerekli' : null,
               ),
               const SizedBox(height: 16),
@@ -297,8 +303,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 validator: (value) =>
                     (value?.length ?? 0) < 6 ? 'Min 6 karakter' : null,
               ),
-              const SizedBox(height: 24),
-              _buildRoleSection(),
               const SizedBox(height: 24),
               _buildInterestsSection(),
               const SizedBox(height: 32),
@@ -424,7 +428,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           Text(
             _fullNameController.text.isNotEmpty
                 ? _fullNameController.text
-                : 'Ad Soyad',
+                : (isTeam ? 'Takım Adınız' : 'Ad Soyad'),
             style: const TextStyle(
               color: Colors.white, // Always White
               fontSize: 18,
@@ -517,19 +521,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         const SizedBox(height: 16),
         if (_avatarType == 'preset') ...[
-          const Text('Cinsiyet', style: TextStyle(color: Colors.white70)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildGenderOption(
-                      'Erkek', 'male', 'assets/images/icon_m.png')),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: _buildGenderOption(
-                      'Kadın', 'female', 'assets/images/icon_w.png')),
-            ],
-          ),
+          if (_selectedRole == 'team') ...[
+            const Text('Amblem', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(child: _buildGenderOption('1', 'team_logo_1', 'assets/images/team_logo_1.png')),
+                const SizedBox(width: 8),
+                Expanded(child: _buildGenderOption('2', 'team_logo_2', 'assets/images/team_logo_2.png')),
+                const SizedBox(width: 8),
+                Expanded(child: _buildGenderOption('3', 'team_logo_3', 'assets/images/team_logo_3.png')),
+              ],
+            ),
+          ] else ...[
+            const Text('Cinsiyet', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                    child: _buildGenderOption(
+                        'Erkek', 'male', 'assets/images/icon_m.png')),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _buildGenderOption(
+                        'Kadın', 'female', 'assets/images/icon_w.png')),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           const Text('Arka Plan Rengi',
               style: TextStyle(color: Colors.white70)),
@@ -615,10 +633,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Widget _buildGenderOption(String label, String value, String assetPath) {
-    final isSelected = _selectedGender == value;
+    final isSelected = (_selectedRole == 'team' ? _selectedTeamLogo : _selectedGender) == value;
     return GestureDetector(
       onTap: () {
-        setState(() => _selectedGender = value);
+        setState(() {
+            if (_selectedRole == 'team') {
+                _selectedTeamLogo = value;
+            } else {
+                _selectedGender = value;
+            }
+        });
         _updatePresetPreview();
       },
       child: Container(
@@ -673,7 +697,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             );
           }).toList(),
-          onChanged: (value) => setState(() => _selectedRole = value!),
+          onChanged: (value) {
+            setState(() {
+              _selectedRole = value!;
+              _updatePresetPreview();
+            });
+          },
         ),
       ],
     );
