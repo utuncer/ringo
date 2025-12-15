@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_colors.dart';
+import '../widgets/profile_avatar.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/home/presentation/home_screen.dart';
 
@@ -24,19 +25,14 @@ class ScaffoldWithNavbar extends ConsumerWidget {
         leading: Builder(
           builder: (context) => IconButton(
             // --- DEĞİŞİKLİK 1: Profil Fotoğrafını Göster ---
-            icon: CircleAvatar(
-              // Eğer kullanıcı metadata'sında avatar_url varsa onu göster,
-              // yoksa varsayılan bir ikon göster.
-              backgroundImage:
-                  (currentUser?.userMetadata?['avatar_url'] != null &&
-                          currentUser!.userMetadata!['avatar_url']!.isNotEmpty)
-                      ? NetworkImage(currentUser.userMetadata!['avatar_url']!)
-                      : null,
-              backgroundColor: Colors.grey[600], // Varsayılan arka plan rengi
-              child: (currentUser?.userMetadata?['avatar_url'] == null ||
-                      currentUser!.userMetadata!['avatar_url']!.isEmpty)
-                  ? const Icon(Icons.person, color: Colors.white)
+            icon: ProfileAvatar(
+              avatarUrl: currentUser?.userMetadata?['avatar_url'],
+              avatarGender: currentUser?.userMetadata?['avatar_gender'],
+              backgroundColor: currentUser?.userMetadata?['avatar_bg_color'] != null
+                  ? AppColors.parseColor(currentUser!.userMetadata!['avatar_bg_color'])
                   : null,
+              username: currentUser?.userMetadata?['username'],
+              radius: 18,
             ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
@@ -75,25 +71,14 @@ class ScaffoldWithNavbar extends ConsumerWidget {
               ),
               accountEmail: Text(
                   '@${currentUser?.userMetadata?['username'] ?? 'username'}'),
-              currentAccountPicture: CircleAvatar(
-                // Burada da aynı mantığı uygulayabiliriz
-                backgroundImage: (currentUser?.userMetadata?['avatar_url'] !=
-                            null &&
-                        currentUser!.userMetadata!['avatar_url']!.isNotEmpty)
-                    ? NetworkImage(currentUser.userMetadata!['avatar_url']!)
+              currentAccountPicture: ProfileAvatar(
+                radius: 36,
+                avatarUrl: currentUser?.userMetadata?['avatar_url'],
+                avatarGender: currentUser?.userMetadata?['avatar_gender'],
+                backgroundColor: currentUser?.userMetadata?['avatar_bg_color'] != null
+                    ? AppColors.parseColor(currentUser!.userMetadata!['avatar_bg_color'])
                     : null,
-                backgroundColor: AppColors.primary,
-                child: (currentUser?.userMetadata?['avatar_url'] == null ||
-                        currentUser!.userMetadata!['avatar_url']!.isEmpty)
-                    ? Text(
-                        (currentUser?.email?.substring(0, 1).toUpperCase() ??
-                            'U'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    : null,
+                username: currentUser?.userMetadata?['username'],
               ),
             ),
             ListTile(

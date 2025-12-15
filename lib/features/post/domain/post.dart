@@ -91,12 +91,16 @@ class PostUser {
   final String username;
   final String fullName;
   final String? avatarUrl;
+  final String? avatarGender;
+  final String? avatarBgColor;
   final String role;
 
   PostUser({
     required this.username,
     required this.fullName,
     this.avatarUrl,
+    this.avatarGender,
+    this.avatarBgColor,
     required this.role,
   });
 
@@ -105,6 +109,8 @@ class PostUser {
       username: json['username'],
       fullName: json['full_name'],
       avatarUrl: json['avatar_url'],
+      avatarGender: json['avatar_gender'],
+      avatarBgColor: json['avatar_bg_color'],
       role: json['role'],
     );
   }

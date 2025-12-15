@@ -24,4 +24,15 @@ class AppColors {
     Color(0xFF006BA6),
     Color(0xFFFFB81C),
   ];
+
+  static Color parseColor(String colorString) {
+    try {
+      final buffer = StringBuffer();
+      if (colorString.length == 6 || colorString.length == 7) buffer.write('ff');
+      buffer.write(colorString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return primary;
+    }
+  }
 }

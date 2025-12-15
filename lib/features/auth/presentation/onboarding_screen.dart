@@ -151,7 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.all(32.0),
               child: _currentPage == 2
                   ? CustomButton(
-                      text: 'Kayıt Ol',
+                      text: 'Başla',
                       onPressed: () => context.go('/register'),
                     )
                   : CustomButton(

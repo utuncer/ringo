@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // EKLENDİ
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 part 'auth_repository.g.dart';
@@ -56,6 +57,14 @@ class AuthRepository {
     await _client.auth.signInWithPassword(email: email, password: password);
   }
 
+  Future<void> uploadAvatar({required String path, required File file}) async {
+    await _client.storage.from('avatars').upload(path, file);
+  }
+
+  String getAvatarUrl(String path) {
+    return _client.storage.from('avatars').getPublicUrl(path);
+  }
+
   Future<void> signUp({
     required String email,
     required String password,
@@ -66,11 +75,12 @@ class AuthRepository {
     String? avatarUrl,
     String? avatarGender,
     String? avatarBgColor,
-    required List<String> interestIds,
+    required List<String> interestIds, // These are actually interest NAMES strings
   }) async {
-    // İlgili alanları virgülle ayrılmış bir dizeye dönüştür
-    final interestsString = interestIds.join(',');
-
+    // 1. Sign up with Supabase Auth
+    // We pass all necessary data in 'data' (metadata).
+    // The Database Trigger (handle_new_user) will take care of creating the public profile
+    // and inserting the selected interests.
     await _client.auth.signUp(
       email: email,
       password: password,
@@ -82,8 +92,7 @@ class AuthRepository {
         'avatar_url': avatarUrl,
         'avatar_gender': avatarGender,
         'avatar_bg_color': avatarBgColor,
-        'interestIds':
-            interestsString, // Virgülle ayrılmış bir dize olarak geçir
+        'interestNames': interestIds,
       },
     );
   }

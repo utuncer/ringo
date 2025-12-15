@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/profile_avatar.dart';
 import '../domain/post.dart';
 import '../data/post_repository.dart';
 
@@ -84,17 +85,14 @@ class PostCard extends ConsumerWidget {
         child: Row(
         children: [
             // Profil fotoğrafı
-            CircleAvatar(
-            backgroundImage: post.user?.avatarUrl != null
-                ? NetworkImage(post.user!.avatarUrl!)
-                : null,
-            backgroundColor: AppColors.primary,
-            child: post.user?.avatarUrl == null
-                ? Text(
-                    post.user?.username?.substring(0, 1).toUpperCase() ?? 'U',
-                    style: const TextStyle(color: Colors.white),
-                    )
-                : null,
+            ProfileAvatar(
+              avatarUrl: post.user?.avatarUrl,
+              avatarGender: post.user?.avatarGender,
+              backgroundColor: post.user?.avatarBgColor != null
+                  ? AppColors.parseColor(post.user!.avatarBgColor!)
+                  : null,
+              username: post.user?.username,
+              radius: 20,
             ),
             const SizedBox(width: 12),
             // Kullanıcı adı, rol ve zaman damgası
@@ -156,6 +154,10 @@ class PostCard extends ConsumerWidget {
                     onDelete!();
                 } else if (value == 'save' && onSave != null) {
                     onSave!();
+                } else if (value == 'report') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Bildirildi.')),
+                    );
                 }
                 },
                 itemBuilder: (context) => [
@@ -177,6 +179,17 @@ class PostCard extends ConsumerWidget {
                         Icon(Icons.delete, color: Colors.white),
                         SizedBox(width: 8),
                         Text('Sil'),
+                        ],
+                    ),
+                    )
+                else
+                    const PopupMenuItem(
+                    value: 'report',
+                    child: Row(
+                        children: [
+                        Icon(Icons.flag, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Şikayet Et'),
                         ],
                     ),
                     ),

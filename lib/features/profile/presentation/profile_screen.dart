@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/profile_avatar.dart';
 import '../../post/data/post_repository.dart';
 import '../../post/domain/post.dart';
 import '../../post/presentation/post_card.dart';
@@ -20,6 +21,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isLoading = true;
   List<Post> _userPosts = [];
   Map<String, dynamic>? _userProfile;
+  List<Map<String, dynamic>> _teamMembers = [];
 
   @override
   void initState() {
@@ -39,8 +41,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
       final postsResponse = await ref.read(postRepositoryProvider).getUserPosts(widget.userId);
 
+      // If team, fetch members
+      List<Map<String, dynamic>> teamMembers = [];
+      if (response['role'] == 'team') {
+        final membersResponse = await Supabase.instance.client
+          .from('team_members')
+          .select('users(*)')
+          .eq('team_id', widget.userId);
+          
+        teamMembers = List<Map<String, dynamic>>.from(membersResponse.map((e) => e['users']));
+      }
+
       setState(() {
         _userProfile = response;
+        _teamMembers = teamMembers;
         _userPosts = postsResponse;
         _isLoading = false;
       });
@@ -94,21 +108,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               color: AppColors.surfaceDark,
               child: Column(
                 children: [
-                  CircleAvatar(
+                  ProfileAvatar(
                     radius: 50,
-                    backgroundImage: _userProfile!['avatar_url'] != null
-                        ? NetworkImage(_userProfile!['avatar_url'])
+                    avatarUrl: _userProfile!['avatar_url'],
+                    avatarGender: _userProfile!['avatar_gender'],
+                    backgroundColor: _userProfile!['avatar_bg_color'] != null
+                        ? AppColors.parseColor(_userProfile!['avatar_bg_color'])
                         : null,
-                    backgroundColor: AppColors.primary,
-                    child: _userProfile!['avatar_url'] == null
-                        ? Text(
-                            _userProfile!['username']?.substring(0, 1).toUpperCase() ?? 'U',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                            ),
-                          )
-                        : null,
+                    username: _userProfile!['username'],
+                    fontSize: 24,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -148,6 +156,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const SizedBox(height: 16),
             _buildInterestTags(),
             const SizedBox(height: 16),
+            if (_userProfile!['role'] == 'team' && _teamMembers.isNotEmpty)
+              _buildTeamMembersSections(),
             if (_userPosts.isEmpty)
               const Center(
                 child: Padding(
@@ -170,6 +180,63 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTeamMembersSections() {
+    final instructors = _teamMembers.where((m) => m['role'] == 'instructor').toList();
+    final competitors = _teamMembers.where((m) => m['role'] == 'competitor').toList();
+
+    return Column(
+      children: [
+        if (instructors.isNotEmpty) _buildMemberSection('Eğitmenler', instructors),
+        if (competitors.isNotEmpty) _buildMemberSection('Yarışmacılar', competitors),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildMemberSection(String title, List<Map<String, dynamic>> members) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        ),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: members.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final member = members[index];
+              return Column(
+                children: [
+                  ProfileAvatar(
+                    radius: 30,
+                    avatarUrl: member['avatar_url'],
+                    avatarGender: member['avatar_gender'], // Assuming we select this in team query
+                    backgroundColor: member['avatar_bg_color'] != null
+                         ? AppColors.parseColor(member['avatar_bg_color'])
+                         : null,
+                    username: member['username'],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    member['full_name'], 
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

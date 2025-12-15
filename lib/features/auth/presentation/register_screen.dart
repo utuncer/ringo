@@ -126,6 +126,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      // 2MB Size Check
+      final int sizeInBytes = await image.length();
+      final double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 2) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Resim boyutu 2MB\'dan büyük olamaz!')),
+          );
+        }
+        return;
+      }
+
       // CROP IMAGE LOGIC
       final CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: image.path,
@@ -136,11 +148,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
-            cropStyle: CropStyle.circle, // Moved here
+            cropStyle: CropStyle.circle, 
           ),
           IOSUiSettings(
             title: 'Fotoğrafı Düzenle',
-            cropStyle: CropStyle.circle, // Moved here
+            cropStyle: CropStyle.circle, 
           ),
         ],
       );
@@ -158,9 +170,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   // Update preview when Preset changes
   void _updatePresetPreview() {
-    // Logic handled in build via state variables
-    // But we need to update the persistence if we are in preset mode
-    
     if (_selectedRole == 'team') {
         _previewImageProvider = AssetImage('assets/images/$_selectedTeamLogo.png');
     } else {
@@ -191,6 +200,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             '#${_selectedBgColor!.value.toRadixString(16).substring(2).toUpperCase()}';
       }
 
+      String? uploadedAvatarUrl;
+
+      // 1. Upload Avatar ONLY if Custom
+      if (_avatarType == 'custom' && _customImageFile != null) {
+        try {
+          final fileExt = _customImageFile!.path.split('.').last;
+          final fileName = '${DateTime.now().toIso8601String()}.$fileExt';
+          final filePath = 'avatars/$fileName';
+          
+          await ref.read(authRepositoryProvider).uploadAvatar(
+            path: filePath, 
+            file: File(_customImageFile!.path)
+          );
+          
+          // Get Public URL
+          uploadedAvatarUrl = ref.read(authRepositoryProvider).getAvatarUrl(filePath);
+        } catch (e) {
+          debugPrint('Avatar upload failed: $e');
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Avatar yüklenemedi, profil fotoğrafsız oluşturulacak.')),
+          );
+        }
+      } else {
+        // If Preset
+        if (_selectedRole == 'team') {
+          // For Teams, we save the logo identifier (e.g. 'team_logo_1') into avatarUrl
+          // so it can be retrieved easily.
+          uploadedAvatarUrl = _selectedTeamLogo;
+        } else {
+          // For Individuals, gender is enough (stored in avatarGender), so avatarUrl can be null.
+          uploadedAvatarUrl = null;
+        }
+      }
+
+      // 2. Sign Up
       await ref.read(authRepositoryProvider).signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text,
@@ -198,6 +242,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             fullName: _fullNameController.text.trim(),
             role: _selectedRole,
             avatarType: _avatarType,
+            avatarUrl: uploadedAvatarUrl,
             avatarGender: _selectedGender,
             avatarBgColor: bgColorHex,
             interestIds: _selectedInterests,

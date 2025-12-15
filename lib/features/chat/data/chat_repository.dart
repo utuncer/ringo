@@ -13,22 +13,48 @@ ChatRepository chatRepository(Ref ref) {
 
 class ChatRepository {
   final SupabaseClient _client;
+  SupabaseClient get client => _client;
 
   ChatRepository(this._client);
 
   Stream<List<Message>> getMessages(String otherUserId) {
     final myId = _client.auth.currentUser!.id;
 
+    // RLS ensures we only get our messages.
+    // We stream all our messages and filter client-side for the specific DM conversation.
+    // This is not most efficient for huge histories but works for basic implementation.
     return _client
         .from('messages')
         .stream(primaryKey: ['id'])
         .order('created_at')
         .map((maps) {
           return maps.map((e) => Message.fromJson(e)).where((msg) {
-            // Filter logic if needed, but RLS should handle most.
-            // Also need to filter deleted messages for me?
-            // "deleted_by" array check.
-            return !msg.deletedBy.contains(myId);
+            if (msg.teamId != null) return false; // Ignore team messages in DM
+            if (msg.deletedBy.contains(myId)) return false;
+            
+            final isMe = msg.senderId == myId;
+            final isOther = msg.senderId == otherUserId;
+            
+            // Me -> Other OR Other -> Me
+            if (isMe && msg.receiverId == otherUserId) return true;
+            if (isOther && msg.receiverId == myId) return true;
+            
+            return false;
+          }).toList();
+        });
+  }
+
+  Stream<List<Message>> getTeamMessages(String teamId) {
+    final myId = _client.auth.currentUser!.id;
+
+    return _client
+        .from('messages')
+        .stream(primaryKey: ['id'])
+        .eq('team_id', teamId)
+        .order('created_at')
+        .map((maps) {
+          return maps.map((e) => Message.fromJson(e)).where((msg) {
+             return !msg.deletedBy.contains(myId);
           }).toList();
         });
   }

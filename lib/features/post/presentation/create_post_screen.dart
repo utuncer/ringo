@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -19,10 +20,37 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   File? _selectedImage;
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
-
-  // Mock user interests for now. In real app, fetch from user profile.
-  final List<String> _userInterests = ['Frontend', 'Backend', 'Mobil'];
+  
+  List<String> _userInterests = [];
   final List<String> _selectedTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInterests();
+  }
+
+  Future<void> _fetchUserInterests() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final response = await Supabase.instance.client
+            .from('user_interests')
+            .select('interests(name)')
+            .eq('user_id', user.id);
+        
+        if (mounted) {
+          setState(() {
+            _userInterests = (response as List)
+                .map((e) => (e['interests'] as Map)['name'] as String)
+                .toList();
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching interests: $e');
+    }
+  }
 
   @override
   void dispose() {
