@@ -22,6 +22,7 @@ dependencies:
   supabase_flutter: ^1.5.0
   image_cropper: ^8.0.0
   lottie: ^3.3.2
+  flutter_dotenv: ^6.0.0
 
 dependency_overrides:
   sign_in_with_apple: ^6.1.0
@@ -65,3 +66,4 @@ flutter:
   assets:
     - assets/images/
     - assets/anim/
+    - .env

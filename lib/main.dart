@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,9 +15,8 @@ void main() async {
   // Initialize Supabase
   // TODO: Replace with actual URL and Anon Key from Supabase Dashboard
   await Supabase.initialize(
-    url: '***REMOVED***',
-    anonKey:
-        '***REMOVED***',
+    url: dotenv.env["SUPABASE_URL"]!,
+    anonKey: dotenv.env["SUPABASE_KEY"]!,
   );
 
   runApp(const ProviderScope(child: RingoApp()));
