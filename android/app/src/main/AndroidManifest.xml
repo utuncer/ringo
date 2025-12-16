@@ -2,7 +2,7 @@
     <application
         android:label="Ringo"
         android:name="${applicationName}"
-        android:icon="@mipmap/ringologo_bg">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -12,6 +12,8 @@ void main() async {
   // Hide system status bar and navigation bar
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+  await dotenv.load(fileName: ".env");
+
   // Initialize Supabase
   // TODO: Replace with actual URL and Anon Key from Supabase Dashboard
   await Supabase.initialize(
