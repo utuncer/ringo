@@ -22,38 +22,51 @@ class ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ImageProvider? imageProvider;
-    Widget? child;
+    final bgColor = backgroundColor ?? AppColors.primary;
 
     // 1. Check for Network URL (Custom Uploads)
     if (avatarUrl != null && avatarUrl!.startsWith('http')) {
       imageProvider = NetworkImage(avatarUrl!);
-    } 
-    // 2. Check for Preset Team Logos (Stored as 'team_logo_X' in avatarUrl)
-    else if (avatarUrl != null && avatarUrl!.startsWith('team_logo')) {
-      // Assuming assets are at assets/images/team_logo_X.png
-      imageProvider = AssetImage('assets/images/$avatarUrl.png');
+      // Custom uploads fill the circle
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: bgColor,
+        backgroundImage: imageProvider,
+        child: null,
+      );
     }
-    // 3. Check for Gender-based Preset (If no specific URL/Logo is set)
+
+    // 2. Check for Preset Team Logos or Gender Presets
     else {
-      if (avatarGender == 'male') {
+      if (avatarUrl != null && avatarUrl!.startsWith('team_logo')) {
+        imageProvider = AssetImage('assets/images/$avatarUrl.png');
+      } else if (avatarGender == 'male') {
         imageProvider = const AssetImage('assets/images/icon_m.png');
       } else if (avatarGender == 'female') {
         imageProvider = const AssetImage('assets/images/icon_w.png');
-      } else {
-        // Fallback: Initials or Icon
-         child = _buildFallbackChild();
+      }
+
+      if (imageProvider != null) {
+        // Presets are rendered as children (75% of diameter) to show background color
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: bgColor,
+          backgroundImage: null,
+          child: Image(
+            image: imageProvider,
+            width: radius * 1.5, // 75% of diameter (radius * 2 * 0.75)
+            height: radius * 1.5,
+            fit: BoxFit.contain,
+          ),
+        );
       }
     }
 
-    // Helper to extract background color from string if needed, 
-    // but we expect Color object passed from parent who parses it.
-    final bgColor = backgroundColor ?? AppColors.primary;
-
+    // 3. Fallback
     return CircleAvatar(
       radius: radius,
       backgroundColor: bgColor,
-      backgroundImage: imageProvider,
-      child: imageProvider == null ? child : null,
+      child: _buildFallbackChild(),
     );
   }
 
