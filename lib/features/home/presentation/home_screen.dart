@@ -7,9 +7,21 @@ import '../../post/data/post_repository.dart';
 import '../../post/domain/post.dart';
 import '../../post/presentation/post_card.dart';
 
-
-
 final homeScrollTriggerProvider = StateProvider<int>((ref) => 0);
+
+final feedPostsProvider =
+    FutureProvider.family.autoDispose<List<Post>, String>((ref, type) async {
+  final repository = ref.watch(postRepositoryProvider);
+  switch (type) {
+    case 'interests':
+      return repository.getInterestPosts();
+    case 'saved_users':
+      return repository.getSavedUsersPosts();
+    case 'discovery':
+    default:
+      return repository.getPosts();
+  }
+});
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -79,9 +91,8 @@ class _FeedListState extends ConsumerState<_FeedList> {
       }
     });
 
-    // TODO: Use specific providers based on type
-    // For now, just fetching all posts for all tabs to demonstrate UI
-    final postsAsync = ref.watch(postsProvider);
+    // Use specific providers based on type
+    final postsAsync = ref.watch(feedPostsProvider(widget.type));
 
     return postsAsync.when(
       data: (posts) {
@@ -104,7 +115,7 @@ class _FeedListState extends ConsumerState<_FeedList> {
           onRefresh: () async {
             // ref.refresh(postsProvider);
             // In riverpod 2.0 we invalidate
-            ref.invalidate(postsProvider);
+            ref.invalidate(feedPostsProvider(widget.type));
           },
           child: ListView.builder(
             controller: _scrollController,
@@ -113,6 +124,16 @@ class _FeedListState extends ConsumerState<_FeedList> {
               return PostCard(
                 post: posts[index],
                 // onTap parametresini kaldırın, zaten PostCard içinde InkWell var
+                onSave: () {
+                  // TODO: Implement toggle save logic
+                  // ref.read(postRepositoryProvider).toggleSave(posts[index].id);
+                  // ref.invalidate(feedPostsProvider(widget.type));
+                },
+                onDelete: () {
+                  // TODO: Implement delete logic (PostCard checks isOwnPost, but parent should also confirm/handle)
+                  // ref.read(postRepositoryProvider).deletePost(posts[index].id);
+                  // ref.invalidate(feedPostsProvider(widget.type));
+                },
               );
             },
           ),
@@ -138,5 +159,3 @@ class _FeedListState extends ConsumerState<_FeedList> {
     }
   }
 }
-
-

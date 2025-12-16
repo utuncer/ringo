@@ -140,7 +140,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Forgot password logic
+                      // TODO: Implement forgot password flow / screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Şifremi unuttum ekranı henüz yapılmadı'),
+                        ),
+                      );
                     },
                     child: const Text(
                       'Şifremi Unuttum',

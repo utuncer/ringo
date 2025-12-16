@@ -45,7 +45,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         int.parse(widget.profile.avatarBgColor!.replaceAll('#', '0xFF')),
       );
     }
-    // TODO: Fetch user interests and pre-fill _selectedInterests
+    _selectedInterests.addAll(widget.profile.interests);
   }
 
   Future<void> _save() async {
@@ -57,14 +57,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             '#${_selectedBgColor!.value.toRadixString(16).substring(2).toUpperCase()}';
       }
 
-      await ref
-          .read(profileRepositoryProvider)
-          .updateProfile(
+      await ref.read(profileRepositoryProvider).updateProfile(
             userId: widget.profile.id,
             avatarType: _avatarType,
             avatarGender: _selectedGender,
             avatarBgColor: bgColorHex,
-            // Interests update logic
+            interests: _selectedInterests,
           );
 
       if (mounted) {

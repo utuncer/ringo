@@ -7,6 +7,7 @@ import '../../../core/widgets/profile_avatar.dart';
 import '../../post/data/post_repository.dart';
 import '../../post/domain/post.dart';
 import '../../post/presentation/post_card.dart';
+import '../domain/user_profile.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -39,17 +40,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           .eq('id', widget.userId)
           .single();
 
-      final postsResponse = await ref.read(postRepositoryProvider).getUserPosts(widget.userId);
+      final postsResponse =
+          await ref.read(postRepositoryProvider).getUserPosts(widget.userId);
 
       // If team, fetch members
       List<Map<String, dynamic>> teamMembers = [];
       if (response['role'] == 'team') {
         final membersResponse = await Supabase.instance.client
-          .from('team_members')
-          .select('users(*)')
-          .eq('team_id', widget.userId);
-          
-        teamMembers = List<Map<String, dynamic>>.from(membersResponse.map((e) => e['users']));
+            .from('team_members')
+            .select('users(*)')
+            .eq('team_id', widget.userId);
+
+        teamMembers = List<Map<String, dynamic>>.from(
+            membersResponse.map((e) => e['users']));
       }
 
       setState(() {
@@ -94,7 +97,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
-                // Edit profile navigation
+                final userProfile = UserProfile.fromJson(_userProfile!);
+                context.push('/edit-profile', extra: userProfile);
               },
             ),
         ],
@@ -137,7 +141,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: _getRoleColor(_userProfile!['role']),
                       borderRadius: BorderRadius.circular(16),
@@ -184,13 +189,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildTeamMembersSections() {
-    final instructors = _teamMembers.where((m) => m['role'] == 'instructor').toList();
-    final competitors = _teamMembers.where((m) => m['role'] == 'competitor').toList();
+    final instructors =
+        _teamMembers.where((m) => m['role'] == 'instructor').toList();
+    final competitors =
+        _teamMembers.where((m) => m['role'] == 'competitor').toList();
 
     return Column(
       children: [
-        if (instructors.isNotEmpty) _buildMemberSection('Eğitmenler', instructors),
-        if (competitors.isNotEmpty) _buildMemberSection('Yarışmacılar', competitors),
+        if (instructors.isNotEmpty)
+          _buildMemberSection('Eğitmenler', instructors),
+        if (competitors.isNotEmpty)
+          _buildMemberSection('Yarışmacılar', competitors),
         const SizedBox(height: 16),
       ],
     );
@@ -202,7 +211,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          child: Text(title,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 100,
@@ -218,15 +231,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ProfileAvatar(
                     radius: 30,
                     avatarUrl: member['avatar_url'],
-                    avatarGender: member['avatar_gender'], // Assuming we select this in team query
+                    avatarGender: member[
+                        'avatar_gender'], // Assuming we select this in team query
                     backgroundColor: member['avatar_bg_color'] != null
-                         ? AppColors.parseColor(member['avatar_bg_color'])
-                         : null,
+                        ? AppColors.parseColor(member['avatar_bg_color'])
+                        : null,
                     username: member['username'],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    member['full_name'], 
+                    member['full_name'],
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

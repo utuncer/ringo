@@ -128,7 +128,13 @@ class _TeamManagement extends ConsumerWidget {
                     color: AppColors.actionError,
                   ),
                   onPressed: () {
-                    // Remove member logic (check permissions first)
+                    // TODO: Implement remove member logic.
+                    // Check if current user is team leader/instructor before removing.
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Üye çıkarma işlemi henüz yapılmadı'),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -159,7 +165,8 @@ Future<String?> myTeamId(Ref ref) async {
   return ref.read(teamRepositoryProvider).getMyTeamId();
 }
 
-final teamChatMessagesProvider = StreamProvider.family<List<Message>, String>((ref, teamId) {
+final teamChatMessagesProvider =
+    StreamProvider.family<List<Message>, String>((ref, teamId) {
   return ref.read(chatRepositoryProvider).getTeamMessages(teamId);
 });
 
@@ -215,10 +222,16 @@ class _TeamChatState extends ConsumerState<_TeamChat> {
                 itemBuilder: (context, index) {
                   final message = messages[messages.length - 1 - index];
                   final isMe = message.senderId ==
-                      ref.read(chatRepositoryProvider).client.auth.currentUser?.id;
-                  
+                      ref
+                          .read(chatRepositoryProvider)
+                          .client
+                          .auth
+                          .currentUser
+                          ?.id;
+
                   return Align(
-                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment:
+                        isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -226,7 +239,8 @@ class _TeamChatState extends ConsumerState<_TeamChat> {
                       ),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isMe ? AppColors.primary : AppColors.surfaceLight,
+                        color:
+                            isMe ? AppColors.primary : AppColors.surfaceLight,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(

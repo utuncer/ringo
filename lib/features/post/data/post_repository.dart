@@ -22,7 +22,8 @@ class PostRepository {
 
     final response = await _client
         .from('posts')
-        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
+        .select(
+            '*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
         .order('created_at', ascending: false);
 
     final posts = (response as List).map((e) => Post.fromJson(e)).toList();
@@ -35,7 +36,8 @@ class PostRepository {
 
     final response = await _client
         .from('posts')
-        .select('*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
+        .select(
+            '*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 
@@ -48,56 +50,60 @@ class PostRepository {
     if (userId == null || posts.isEmpty) return posts;
 
     final postIds = posts.map((e) => e.id).toList();
-    
+
     // Fetch user votes for these posts
     final votesResponse = await _client
         .from('votes')
         .select('post_id, value')
         .eq('user_id', userId)
         .in_('post_id', postIds);
-    
+
     final votesMap = {
-        for (var v in (votesResponse as List)) v['post_id'] as String: v['value'] as int
+      for (var v in (votesResponse as List))
+        v['post_id'] as String: v['value'] as int
     };
 
     // Recreate posts with userVote
     return posts.map((p) {
-        final vote = votesMap[p.id];
-        if (vote != null) {
-             return Post(
-                id: p.id,
-                userId: p.userId,
-                content: p.content,
-                imageUrl: p.imageUrl,
-                imageAspectRatio: p.imageAspectRatio,
-                createdAt: p.createdAt,
-                user: p.user,
-                voteCount: p.voteCount,
-                commentCount: p.commentCount,
-                isSaved: p.isSaved,
-                userVote: vote,
-                tags: p.tags,
-                likes: p.likes,
-                comments: p.comments,
-                isOwnPost: p.isOwnPost,
-            );
-        }
-        return p;
+      final vote = votesMap[p.id];
+      if (vote != null) {
+        return Post(
+          id: p.id,
+          userId: p.userId,
+          content: p.content,
+          imageUrl: p.imageUrl,
+          imageAspectRatio: p.imageAspectRatio,
+          createdAt: p.createdAt,
+          user: p.user,
+          voteCount: p.voteCount,
+          commentCount: p.commentCount,
+          isSaved: p.isSaved,
+          userVote: vote,
+          tags: p.tags,
+          likes: p.likes,
+          comments: p.comments,
+          isOwnPost: p.isOwnPost,
+        );
+      }
+      return p;
     }).toList();
   }
 
   Future<void> votePost(String postId, int value) async {
     final userId = _client.auth.currentUser!.id;
     if (value == 0) {
-        // Remove vote
-        await _client.from('votes').delete().match({'user_id': userId, 'post_id': postId});
+      // Remove vote
+      await _client
+          .from('votes')
+          .delete()
+          .match({'user_id': userId, 'post_id': postId});
     } else {
-        // Upsert vote
-        await _client.from('votes').upsert({
-            'user_id': userId,
-            'post_id': postId,
-            'value': value,
-        });
+      // Upsert vote
+      await _client.from('votes').upsert({
+        'user_id': userId,
+        'post_id': postId,
+        'value': value,
+      });
     }
   }
 
@@ -123,38 +129,44 @@ class PostRepository {
 
     await _ensureUserExists();
 
-    final postResponse = await _client.from('posts').insert({
-      'user_id': userId,
-      'content': content,
-      'image_url': imageUrl,
-      'image_aspect_ratio': aspectRatio,
-    }).select().single();
-    
+    final postResponse = await _client
+        .from('posts')
+        .insert({
+          'user_id': userId,
+          'content': content,
+          'image_url': imageUrl,
+          'image_aspect_ratio': aspectRatio,
+        })
+        .select()
+        .single();
+
     final postId = postResponse['id'];
 
     // Insert tags
     if (tags.isNotEmpty) {
-        // First get interest IDs
-        final interestsResponse = await _client
-            .from('interests')
-            .select('id, name')
-            .in_('name', tags);
-        
-        final interestMap = {
-            for (var i in (interestsResponse as List)) i['name'] as String: i['id'] as int
-        };
+      // First get interest IDs
+      final interestsResponse =
+          await _client.from('interests').select('id, name').in_('name', tags);
 
-        final postTags = tags.map((tag) {
+      final interestMap = {
+        for (var i in (interestsResponse as List))
+          i['name'] as String: i['id'] as int
+      };
+
+      final postTags = tags
+          .map((tag) {
             final interestId = interestMap[tag];
             if (interestId != null) {
-                return {'post_id': postId, 'interest_id': interestId};
+              return {'post_id': postId, 'interest_id': interestId};
             }
             return null;
-        }).where((e) => e != null).toList();
+          })
+          .where((e) => e != null)
+          .toList();
 
-        if (postTags.isNotEmpty) {
-            await _client.from('post_tags').insert(postTags);
-        }
+      if (postTags.isNotEmpty) {
+        await _client.from('post_tags').insert(postTags);
+      }
     }
   }
 
@@ -163,8 +175,11 @@ class PostRepository {
     if (user == null) return;
 
     try {
-      final data =
-          await _client.from('users').select('id').eq('id', user.id).maybeSingle();
+      final data = await _client
+          .from('users')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
 
       if (data == null) {
         await _client.from('users').insert({
@@ -213,6 +228,83 @@ class PostRepository {
 
   Future<void> deleteComment(String commentId) async {
     await _client.from('comments').delete().eq('id', commentId);
+  }
+
+  Future<List<Post>> getInterestPosts() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return [];
+
+    // 1. Get user interests
+    final interestsResponse = await _client
+        .from('user_interests')
+        .select('interest_id')
+        .eq('user_id', userId);
+
+    final interestIds = (interestsResponse as List)
+        .map((e) => e['interest_id'] as int)
+        .toList();
+
+    if (interestIds.isEmpty) return [];
+
+    // 2. Get posts filtering by matching interest IDs in post_tags
+    // We select matched post_ids first
+    final postIdsResponse = await _client
+        .from('post_tags')
+        .select('post_id')
+        .in_('interest_id', interestIds);
+
+    final postIds = (postIdsResponse as List)
+        .map((e) => e['post_id'] as String)
+        .toSet()
+        .toList();
+
+    if (postIds.isEmpty) return [];
+
+    final response = await _client
+        .from('posts')
+        .select(
+            '*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
+        .in_('id', postIds)
+        .order('created_at', ascending: false);
+
+    final posts = (response as List).map((e) => Post.fromJson(e)).toList();
+    return _attachUserVotes(posts, userId);
+  }
+
+  Future<List<Post>> getSavedUsersPosts() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return [];
+
+    try {
+      // Assuming 'saved_users' table exists as implied by "Yıldızlılar" (Starred) terminology
+      // If table name is different, this needs adjustment.
+      // Common patterns: saved_users, followers, follows.
+      // Based on UI text "starred accounts", we assume a relation exists.
+      final savedUsersResponse = await _client
+          .from(
+              'saved_users') // Potential point of failure if table doesn't exist
+          .select('saved_user_id')
+          .eq('user_id', userId);
+
+      final savedUserIds = (savedUsersResponse as List)
+          .map((e) => e['saved_user_id'] as String)
+          .toList();
+
+      if (savedUserIds.isEmpty) return [];
+
+      final response = await _client
+          .from('posts')
+          .select(
+              '*, users!posts_user_id_fkey(username, full_name, avatar_url, role), post_tags(interests(name))')
+          .in_('user_id', savedUserIds)
+          .order('created_at', ascending: false);
+
+      final posts = (response as List).map((e) => Post.fromJson(e)).toList();
+      return _attachUserVotes(posts, userId);
+    } catch (e) {
+      print('Error fetching saved users posts: $e');
+      return [];
+    }
   }
 }
 

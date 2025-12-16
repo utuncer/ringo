@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/constants/app_colors.dart';
 import '../data/chat_repository.dart';
 import '../domain/message.dart';
+import '../../auth/data/auth_repository.dart';
 
 part 'chat_room_screen.g.dart';
 
@@ -43,6 +44,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     final messagesStream = ref.watch(chatMessagesProvider(widget.otherUserId));
+    final myId = ref.watch(authRepositoryProvider).currentUser?.id;
 
     return Scaffold(
       appBar: AppBar(
@@ -68,11 +70,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   itemBuilder: (context, index) {
                     final message =
                         messages[messages.length - 1 - index]; // Reverse index
-                    final isMe = message.senderId == 'ME'; // TODO: Get my ID
+                    final isMe = message.senderId == myId;
                     return Align(
-                      alignment: isMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -80,9 +81,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         ),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isMe
-                              ? AppColors.primary
-                              : AppColors.surfaceDark,
+                          color:
+                              isMe ? AppColors.primary : AppColors.surfaceDark,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -155,8 +155,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       child: Text(
                         '$length/200',
                         style: TextStyle(
-                          color:
-                              isOverflow ? const Color(0xFFDA291C) : Colors.grey,
+                          color: isOverflow
+                              ? const Color(0xFFDA291C)
+                              : Colors.grey,
                           fontSize: 12,
                         ),
                       ),

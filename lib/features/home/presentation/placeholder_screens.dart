@@ -13,6 +13,7 @@ class SavedPostsScreen extends StatelessWidget {
         'Kaydedilen gönderiler burada gösterilecek',
         style: TextStyle(color: Colors.white),
       ),
+      // TODO: Implement Saved Posts Screen UI (List of saved posts)
     );
   }
 }
@@ -27,6 +28,7 @@ class EditInterestsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('İlgi Alanlarını Düzenle')),
       body: const Center(
         child: Text('İlgi Alanları Düzenleme Ekranı - Yakında'),
+        // TODO: Implement Edit Interests Screen UI with selection logic
       ),
     );
   }
@@ -42,6 +44,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Ayarlar')),
       body: const Center(
         child: Text('Ayarlar Ekranı - Yakında'),
+        // TODO: Implement Settings Screen with app preferences (Notification settings, Account settings, etc.)
       ),
     );
   }

@@ -20,7 +20,7 @@ class ProfileRepository {
   Future<UserProfile> getUserProfile(String userId) async {
     final response = await _client
         .from('users')
-        .select()
+        .select('*, user_interests(interests(name))')
         .eq('id', userId)
         .single();
     return UserProfile.fromJson(response);
@@ -60,6 +60,7 @@ class ProfileRepository {
     required String avatarType,
     String? avatarGender,
     String? avatarBgColor,
+    List<String>? interests,
   }) async {
     await _client.auth.updateUser(
       UserAttributes(
@@ -71,14 +72,36 @@ class ProfileRepository {
       ),
     );
 
-    await _client
-        .from('users')
-        .update({
-          'avatar_type': avatarType,
-          'avatar_gender': avatarGender,
-          'avatar_bg_color': avatarBgColor,
-        })
-        .eq('id', userId);
+    await _client.from('users').update({
+      'avatar_type': avatarType,
+      'avatar_gender': avatarGender,
+      'avatar_bg_color': avatarBgColor,
+    }).eq('id', userId);
+
+    if (interests != null) {
+      // 1. Get interest IDs
+      final interestRecords = await _client
+          .from('interests')
+          .select('id, name')
+          .in_('name', interests);
+
+      final interestIds =
+          (interestRecords as List).map((e) => e['id']).toList();
+
+      // 2. Delete old interests
+      await _client.from('user_interests').delete().eq('user_id', userId);
+
+      // 3. Insert new interests
+      if (interestIds.isNotEmpty) {
+        final insertData = interestIds
+            .map((id) => {
+                  'user_id': userId,
+                  'interest_id': id,
+                })
+            .toList();
+        await _client.from('user_interests').insert(insertData);
+      }
+    }
   }
 
   Future<void> blockUser(String userId) async {

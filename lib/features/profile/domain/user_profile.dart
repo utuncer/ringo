@@ -7,6 +7,7 @@ class UserProfile {
   final String? avatarType;
   final String? avatarGender;
   final String? avatarBgColor;
+  final List<String> interests;
 
   UserProfile({
     required this.id,
@@ -17,6 +18,7 @@ class UserProfile {
     this.avatarType,
     this.avatarGender,
     this.avatarBgColor,
+    this.interests = const [],
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,10 @@ class UserProfile {
       avatarType: json['avatar_type'],
       avatarGender: json['avatar_gender'],
       avatarBgColor: json['avatar_bg_color'],
+      interests: (json['user_interests'] as List<dynamic>?)
+              ?.map((e) => e['interests']['name'] as String)
+              .toList() ??
+          [],
     );
   }
 }
